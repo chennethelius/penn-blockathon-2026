@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:tronscan.org)",
+      "WebFetch(domain:maiat.xyz)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:glama.ai)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:x.com)",
+      "WebFetch(domain:app.maiat.io)"
+    ]
+  }
+}
