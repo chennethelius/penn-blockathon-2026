@@ -1,0 +1,14 @@
+node_modules/
+.env
+__pycache__/
+*.pyc
+.next/
+build/
+dist/
+*.log
+.DS_Store
+.tronbox/
+anubis/models/*.json
+anubis/models/*.pkl
+.venv/
+venv/
