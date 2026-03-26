@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trust Lookup — TronTrust</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .page-wrap { padding: 104px 0 80px; }
+
+    /* search */
+    .search-bar { display: flex; gap: 10px; margin-bottom: 12px; }
+    .search-input {
+      flex: 1; background: rgba(13,2,18,0.8); border: 1px solid rgba(255,255,255,0.09);
+      box-shadow: var(--shadow-sm);
+      color: var(--text); padding: 14px 18px; font-size: 14px;
+      font-family: 'Courier New', monospace; outline: none;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .search-input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(232,38,26,0.1); }
+    .search-input::placeholder { color: var(--muted); }
+    .search-btn {
+      background: var(--red); color: #fff; border: none;
+      padding: 14px 28px; font-size: 14px; font-weight: 700; white-space: nowrap; cursor: pointer;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+    .search-btn:hover { background: var(--red2); box-shadow: 0 0 20px var(--glow); }
+    @media (max-width: 600px) { .search-bar { flex-direction: column; } }
+
+    .demo-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
+    .demo-lbl { font-size: 12px; color: var(--muted); }
+    .chip {
+      background: var(--bg2); border: 1px solid var(--border2);
+      color: var(--dim); padding: 5px 12px; font-size: 12px; font-family: monospace;
+      cursor: pointer; transition: all 0.15s;
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    }
+    .chip:hover { border-color: var(--border); color: var(--red); }
+
+    /* result layout */
+    .result-layout {
+      display: grid; grid-template-columns: 1fr 320px; gap: 18px;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .result-layout.visible { opacity: 1; pointer-events: all; animation: up 0.3s ease; }
+    @media (max-width: 920px) { .result-layout { grid-template-columns: 1fr; } }
+
+    /* main card */
+    .result-main {
+      background: rgba(13,2,18,0.75);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.09);
+      box-shadow: var(--shadow-lg);
+      clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 0px));
+      overflow: hidden;
+    }
+    .result-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 20px; padding: 24px; flex-wrap: wrap;
+      border-bottom: 1px solid var(--border2);
+      background: rgba(232,38,26,0.03);
+    }
+    .result-name { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+    .result-addr { font-size: 12px; color: var(--dim); font-family: monospace; margin-bottom: 12px; }
+    .result-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* score ring */
+    .score-block { text-align: center; flex-shrink: 0; }
+    .score-ring-wrap { position: relative; width: 96px; height: 96px; margin: 0 auto 8px; }
+    .score-ring-wrap svg { transform: rotate(-90deg); }
+    .score-ring-wrap circle { fill: none; stroke-width: 8; }
+    .sc-track { stroke: rgba(255,255,255,0.05); }
+    .sc-fill { stroke-linecap: butt; stroke-dasharray: 251; transition: stroke-dashoffset 0.9s ease; }
+    .score-num { position: absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:22px; font-weight:900; }
+    .score-verdict { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+
+    /* body */
+    .result-body { padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 600px) { .result-body { grid-template-columns: 1fr; } }
+    .sub-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); margin-bottom: 14px; }
+
+    .bar-row { margin-bottom: 13px; }
+    .bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--dim); margin-bottom: 5px; }
+    .bar-track { height: 4px; background: rgba(255,255,255,0.05); }
+    .bar-fill { height: 100%; transition: width 0.9s ease; }
+
+    .flag-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; font-size: 12px;
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border2);
+      margin-bottom: 6px;
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+    }
+    .flag-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+    /* sidebar */
+    .sidebar { display: flex; flex-direction: column; gap: 14px; }
+    .stat-card {
+      background: rgba(13,2,18,0.72);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow-md);
+      padding: 20px; position: relative;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+    }
+    .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg, var(--red), transparent); }
+    .stat-card-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); margin-bottom: 14px; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px; font-size: 13px; }
+    .stat-row:last-child { margin-bottom: 0; }
+    .stat-label { color: var(--dim); }
+    .stat-val { font-weight: 700; font-family: monospace; }
+    .good { color: var(--score-g); } .warn { color: var(--score-y); } .bad { color: var(--score-r); }
+
+    .commercial-card {
+      background: rgba(13,2,18,0.72);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow-md);
+      padding: 20px; position: relative;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+    }
+    .commercial-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg, var(--red), transparent); }
+    .comm-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+    .cscore { background: var(--bg3); padding: 12px; text-align: center; }
+    .cscore-val { font-size: 26px; font-weight: 900; margin-bottom: 2px; }
+    .cscore-lbl { font-size: 10px; color: var(--muted); }
+    .terms-box {
+      padding: 12px; background: var(--bg3); font-size: 12px; color: var(--dim); line-height: 1.6;
+      border-left: 2px solid var(--red);
+    }
+
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 72px 0; color: var(--dim); text-align: center;
+    }
+    .empty-icon { font-size: 38px; margin-bottom: 16px; opacity: 0.25; }
+    .empty-text { font-size: 15px; margin-bottom: 6px; }
+    .empty-sub { font-size: 13px; color: var(--muted); }
+  </style>
+</head>
+<body>
+<div class="ambient-bg">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html">
+      <svg class="tron-logo-svg" viewBox="0 0 32 32" fill="none">
+        <polygon points="16,2 30,10 30,22 16,30 2,22 2,10" fill="rgba(232,38,26,0.15)" stroke="#e8261a" stroke-width="1.2"/>
+        <polygon points="16,6 26,12 26,20 16,26 6,20 6,12" fill="rgba(232,38,26,0.2)"/>
+        <polygon points="16,10 22,14 22,20 16,24 10,20 10,14" fill="#e8261a"/>
+      </svg>
+      <div class="nav-logo-text"><em>TRON</em><span>Trust</span></div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="dashboard.html" class="active">Lookup</a></li>
+      <li><a href="sentinel.html">Sentinel</a></li>
+      <li><a href="passport.html">Passport</a></li>
+    </ul>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="theme-toggle" id="themeToggle" title="Toggle day/night mode">🌙</button>
+      <button class="nav-cta">Connect TronLink</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="container">
+    <div class="sec-label">Trust Lookup</div>
+    <h1 style="font-size:clamp(26px,4vw,42px);font-weight:900;letter-spacing:-0.03em;margin-bottom:8px;">Check any Tron wallet</h1>
+    <p style="font-size:15px;color:var(--dim);margin-bottom:30px;">Composite trust score — on-chain behavior, ML risk, and community reputation.</p>
+
+    <div class="search-bar">
+      <input class="search-input" id="addrInput" type="text" placeholder="Enter Tron wallet address (e.g. TGx7f3...)" />
+      <button class="search-btn" onclick="lookup()">Analyze →</button>
+    </div>
+    <div class="demo-row">
+      <span class="demo-lbl">Try:</span>
+      <div class="chip" onclick="loadDemo('TGoodAgent111','DeFiBot Alpha',88,'TRUSTED','DeFi Agent',91)">TGoodAgent111 · 88</div>
+      <div class="chip" onclick="loadDemo('TNewWallet444','NewAgent-1',52,'NEUTRAL','Unknown',0)">TNewWallet444 · 52</div>
+      <div class="chip" onclick="loadDemo('TRiskyWallet22','SuspiciousBot',28,'RISKY','Unknown',0)">TRiskyWallet22 · 28</div>
+      <div class="chip" onclick="loadDemo('TBlacklist333','ScamBot-X',0,'BLACKLISTED','Malicious',0)">TBlacklist333 · Blacklisted</div>
+    </div>
+
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">◈</div>
+      <div class="empty-text">Enter a wallet address above</div>
+      <div class="empty-sub">Results will appear here</div>
+    </div>
+
+    <div class="result-layout" id="resultLayout">
+      <div class="result-main">
+        <div class="result-top">
+          <div>
+            <div class="result-name" id="rName">—</div>
+            <div class="result-addr" id="rAddr">—</div>
+            <div class="result-badges" id="rBadges"></div>
+          </div>
+          <div class="score-block">
+            <div class="score-ring-wrap">
+              <svg viewBox="0 0 96 96" width="96" height="96">
+                <circle class="sc-track" cx="48" cy="48" r="40"/>
+                <circle class="sc-fill" id="scFill" cx="48" cy="48" r="40"/>
+              </svg>
+              <div class="score-num" id="rScore">—</div>
+            </div>
+            <div class="score-verdict" id="rVerdict">—</div>
+          </div>
+        </div>
+        <div class="result-body">
+          <div>
+            <div class="sub-title">Score Breakdown</div>
+            <div id="rBars"></div>
+          </div>
+          <div>
+            <div class="sub-title">Signal Flags</div>
+            <div id="rFlags"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar">
+        <div class="stat-card">
+          <div class="stat-card-title">Behavioral Stats</div>
+          <div id="statRows"></div>
+        </div>
+        <div class="commercial-card">
+          <div class="sec-label" style="font-size:10px;margin-bottom:4px;">Commercial Trust</div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px;">B2B Score</div>
+          <div style="font-size:12px;color:var(--dim);">Based on invoice settlement history via PayClaw.</div>
+          <div class="comm-scores">
+            <div class="cscore"><div class="cscore-val" id="commScore">—</div><div class="cscore-lbl">Commercial</div></div>
+            <div class="cscore"><div class="cscore-val" id="agentScore">—</div><div class="cscore-lbl">Agent Trust</div></div>
+          </div>
+          <div class="terms-box" id="termsBox">Enter an address to see recommended payment terms.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-copy">© 2026 TronTrust · PennBlockathon 2026</div>
+      <div class="footer-links"><a href="index.html">Home</a><a href="sentinel.html">Sentinel</a><a href="passport.html">Passport</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function loadDemo(addr,name,score,verdict,type,commSc){ document.getElementById('addrInput').value=addr; showResult(addr,name,score,verdict,type,commSc); }
+  function lookup(){
+    const addr=document.getElementById('addrInput').value.trim(); if(!addr)return;
+    const d={'TGoodAgent111':['DeFiBot Alpha',88,'TRUSTED','DeFi Agent',91],'TNewWallet444':['NewAgent-1',52,'NEUTRAL','Unknown',0],'TRiskyWallet22':['SuspiciousBot',28,'RISKY','Unknown',0],'TBlacklist333':['ScamBot-X',0,'BLACKLISTED','Malicious',0]};
+    const m=d[addr]; if(m) showResult(addr,...m); else { const s=Math.floor(Math.random()*50)+25; showResult(addr,'Unknown Agent',s,s>60?'NEUTRAL':'CAUTION','Unknown',0); }
+  }
+  function clamp(n){return Math.min(100,Math.max(0,n));} function rnd(){return Math.floor(Math.random()*12)-6;}
+  function showResult(addr,name,score,verdict,type,commSc){
+    document.getElementById('emptyState').style.display='none';
+    const color=score>=70?'#22c55e':score>=45?'#facc15':'#f87171';
+    const bCls=score>=70?'b-green':score>=45?'b-yellow':'b-red';
+    const vcCls=score>=70?'good':score>=45?'warn':'bad';
+    document.getElementById('rName').textContent=name;
+    document.getElementById('rAddr').textContent=addr;
+    document.getElementById('rScore').textContent=score;
+    document.getElementById('rScore').style.color=color;
+    document.getElementById('rVerdict').textContent=verdict;
+    document.getElementById('rVerdict').style.color=color;
+    const fill=document.getElementById('scFill');
+    fill.style.stroke=color; fill.style.strokeDashoffset=251-(score/100)*251;
+    const v=clamp(score+rnd()),m=clamp(score+rnd()),c=clamp(score+rnd());
+    document.getElementById('rBars').innerHTML=`
+      <div class="bar-row"><div class="bar-label"><span>On-Chain Behavior (50%)</span><span>${v}</span></div><div class="bar-track"><div class="bar-fill" style="width:${v}%;background:${color}"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>Anubis ML Engine (30%)</span><span>${m}</span></div><div class="bar-track"><div class="bar-fill" style="width:${m}%;background:${color}"></div></div></div>
+      <div class="bar-row"><div class="bar-label"><span>Community Reviews (20%)</span><span>${c}</span></div><div class="bar-track"><div class="bar-fill" style="width:${c}%;background:${color}"></div></div></div>`;
+    document.getElementById('rBadges').innerHTML=`<span class="badge ${bCls}">${verdict}</span><span class="badge b-dim">${type}</span>`+(score>=80?'<span class="badge b-dim">net-30 eligible</span>':'')+(score===0?'<span class="badge b-red">⛔ BLACKLISTED</span>':'');
+    const flags=[];
+    if(score>=80)flags.push(['#22c55e','JustLend repayment > 90%']);
+    if(score>=70)flags.push(['#22c55e','No wash trading detected']);
+    if(score>=60)flags.push(['#22c55e','Wallet age > 90 days']);
+    if(score<50&&score>0)flags.push(['#facc15','Suspicious transaction velocity']);
+    if(score<40&&score>0)flags.push(['#facc15','Wallet age < 30 days']);
+    if(score<30&&score>0)flags.push(['#f87171','Wash trading detected']);
+    if(score===0)flags.push(['#f87171','3+ community reports filed']);
+    if(score===0)flags.push(['#f87171','Score forced to 0 by Sentinel']);
+    document.getElementById('rFlags').innerHTML=flags.length?flags.map(([c,t])=>`<div class="flag-item"><div class="flag-dot" style="background:${c}"></div>${t}</div>`).join(''):'<div style="font-size:12px;color:var(--muted)">No flags detected</div>';
+    const jl=score>=70?(85+Math.floor(Math.random()*15))+'%':score>=45?(50+Math.floor(Math.random()*30))+'%':'N/A';
+    const wa=score>=70?(90+Math.floor(Math.random()*200))+'d':(Math.floor(Math.random()*45))+'d';
+    const ws=score>=70?'0.02':score>=45?'0.18':'0.61';
+    document.getElementById('statRows').innerHTML=`
+      <div class="stat-row"><span class="stat-label">JustLend repayment</span><span class="stat-val ${vcCls}">${jl}</span></div>
+      <div class="stat-row"><span class="stat-label">Wallet age</span><span class="stat-val">${wa}</span></div>
+      <div class="stat-row"><span class="stat-label">Wash trading score</span><span class="stat-val ${score>=70?'good':'bad'}">${ws}</span></div>
+      <div class="stat-row"><span class="stat-label">Unique counterparties</span><span class="stat-val">${score>=70?Math.floor(Math.random()*200+80):Math.floor(Math.random()*15)}</span></div>
+      <div class="stat-row"><span class="stat-label">Contract interactions</span><span class="stat-val">${score>=60?'Regular':'Irregular'}</span></div>`;
+    const cs=commSc>0?commSc:(score>0?clamp(score+rnd()):0);
+    document.getElementById('commScore').textContent=cs; document.getElementById('commScore').style.color=cs>=70?'#22c55e':cs>=45?'#facc15':'#f87171';
+    document.getElementById('agentScore').textContent=score; document.getElementById('agentScore').style.color=color;
+    let terms;
+    if(score===0) terms='<strong>Access denied.</strong> This address is blacklisted.';
+    else if(score>=80) terms='<strong>Net-30 auto-approved.</strong> Credit limit: 10,000 USDT. No escrow required.';
+    else if(score>=60) terms='<strong>Net-15 with review.</strong> Credit limit: 2,500 USDT.';
+    else terms='<strong>Escrow required.</strong> Insufficient commercial history.';
+    document.getElementById('termsBox').innerHTML=terms;
+    document.getElementById('resultLayout').classList.add('visible');
+  }
+  document.getElementById('addrInput').addEventListener('keydown',e=>{ if(e.key==='Enter') lookup(); });
+
+  const toggle = document.getElementById('themeToggle');
+  const saved = localStorage.getItem('trontrust-theme');
+  if (saved === 'light') { document.documentElement.setAttribute('data-theme','light'); toggle.textContent = '☀️'; }
+  toggle.addEventListener('click', () => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    if (isLight) { document.documentElement.removeAttribute('data-theme'); toggle.textContent = '🌙'; localStorage.setItem('trontrust-theme','dark'); }
+    else { document.documentElement.setAttribute('data-theme','light'); toggle.textContent = '☀️'; localStorage.setItem('trontrust-theme','light'); }
+  });
+</script>
+</body>
+</html>
