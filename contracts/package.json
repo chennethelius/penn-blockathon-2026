@@ -1,0 +1,17 @@
+{
+  "name": "trontrust-contracts",
+  "version": "0.1.0",
+  "description": "TronTrust smart contracts for Nile testnet",
+  "scripts": {
+    "compile": "tronbox compile",
+    "migrate": "tronbox migrate --network nile",
+    "migrate:reset": "tronbox migrate --network nile --reset",
+    "test": "tronbox test --network development"
+  },
+  "dependencies": {
+    "tronweb": "^6.0.0"
+  },
+  "devDependencies": {
+    "tronbox": "^2.7.25"
+  }
+}
