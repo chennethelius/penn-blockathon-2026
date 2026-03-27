@@ -133,6 +133,24 @@ async def list_tools() -> list[Tool]:
                 "required": ["address"],
             },
         ),
+        Tool(
+            name="register_agent",
+            description="Register a new AI agent on TronTrust. Creates an on-chain AgentProfile on TronTrustOracle and mints a soul-bound TrustPassport NFT. Initial trust score is 50.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "address": {
+                        "type": "string",
+                        "description": "Tron wallet address of the agent to register",
+                    },
+                    "agent_type": {
+                        "type": "string",
+                        "description": "Type of agent (e.g. 'DeFi Bot', 'Trading Agent', 'Payment Agent')",
+                    },
+                },
+                "required": ["address", "agent_type"],
+            },
+        ),
     ]
 
 
@@ -173,6 +191,16 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
         elif name == "get_sun_points_balance":
             result = await _api_get(f"/sunpoints?address={arguments['address']}")
+            return [TextContent(
+                type="text",
+                text=json.dumps(result, indent=2),
+            )]
+
+        elif name == "register_agent":
+            result = await _api_post("/agent/register", {
+                "address": arguments["address"],
+                "agentType": arguments["agent_type"],
+            })
             return [TextContent(
                 type="text",
                 text=json.dumps(result, indent=2),
