@@ -430,6 +430,27 @@ pre {
   display: block; width: 100%;
 }
 
+/* ── GENERIC ANIMATED BORDER WRAPPER (for all red buttons) ── */
+.btn-wrap {
+  --border-angle: 0deg;
+  padding: 1.5px;
+  display: inline-block;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 0%, transparent 60%,
+    #e8261a 75%, #ff6644 82%, #e8261a 89%,
+    transparent 100%
+  );
+  clip-path: polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 11px 100%, 0 calc(100% - 11px));
+  animation: border-spin 2.2s linear infinite;
+}
+.btn-wrap .btn-primary { display: block; }
+.btn-wrap .search-btn  { display: block; }
+.btn-wrap .btn-sm      {
+  display: block;
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+}
+
 /* ── CURSOR GLOW ── */
 #cursorGlow {
   position: fixed;

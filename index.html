@@ -189,7 +189,7 @@
       using on-chain behavior, ML risk analysis, and community reputation.
     </p>
     <div class="hero-btns">
-      <a href="dashboard.html" class="btn-primary">Check an Agent →</a>
+      <div class="btn-wrap"><a href="dashboard.html" class="btn-primary">Check an Agent →</a></div>
       <a href="passport.html" class="btn-outline">MCP Integration</a>
     </div>
   </div>
@@ -203,8 +203,8 @@
       <div class="stat-lbl">Tron-Native ML Features</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-num">3</div>
-      <div class="stat-lbl">Trust Signals Combined</div>
+      <div class="stat-num">5</div>
+      <div class="stat-lbl">Verdict Bands (Oracle)</div>
     </div>
     <div class="stat-cell">
       <div class="stat-num">6</div>
@@ -282,7 +282,46 @@
       <div class="step-card">
         <div class="step-num">03</div>
         <div class="step-title">Act on the verdict</div>
-        <div class="step-desc">TRUSTED, CAUTION, or BLACKLISTED. The Guard SDK auto-blocks untrusted wallets before any transaction is signed.</div>
+        <div class="step-desc">Five bands from the Oracle: <span style="color:var(--score-g);font-weight:700;">TRUSTED</span> · <span style="color:#3b82f6;font-weight:700;">REPUTABLE</span> · <span style="color:var(--score-y);font-weight:700;">CAUTION</span> · <span style="color:var(--score-r);font-weight:700;">RISKY</span> · <span style="color:var(--red);font-weight:700;">BLACKLISTED</span>. The TrustGateContract auto-blocks untrusted wallets before any transaction is signed.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- x402 PAY-PER-CALL API -->
+<section>
+  <div class="container">
+    <div class="sec-label">x402 Protocol</div>
+    <h2 class="sec-title">Pay-per-call via USDT-TRC20.</h2>
+    <p class="sec-sub">No API keys. No subscriptions. Send USDT on Tron, get a response. Built on the x402 HTTP payment standard.</p>
+    <div class="model-grid" style="margin-top:32px;">
+      <div class="model-cell" style="padding:24px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--muted);margin-bottom:16px;text-transform:uppercase;">Endpoint</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;"><span style="font-family:monospace;color:var(--dim);">GET /api/x402/trust</span><span style="font-weight:900;color:var(--score-y);">$0.02</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;"><span style="font-family:monospace;color:var(--dim);">GET /api/x402/token-check</span><span style="font-weight:900;color:var(--score-y);">$0.01</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;"><span style="font-family:monospace;color:var(--dim);">GET /api/x402/reputation</span><span style="font-weight:900;color:var(--score-y);">$0.03</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;"><span style="font-family:monospace;color:var(--dim);">POST /api/x402/token-forensics</span><span style="font-weight:900;color:var(--score-y);">$0.05</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;"><span style="font-family:monospace;color:var(--dim);">POST /api/x402/register-passport</span><span style="font-weight:900;color:var(--score-y);">$1.00</span></div>
+        </div>
+      </div>
+      <div class="model-cell" style="padding:24px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--muted);margin-bottom:16px;text-transform:uppercase;">How it works</div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--dim);"><span style="color:var(--red);font-weight:900;flex-shrink:0;">01</span>Call any x402 endpoint — receive a 402 with payment instructions</div>
+          <div style="display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--dim);"><span style="color:var(--red);font-weight:900;flex-shrink:0;">02</span>Send the exact USDT amount to the treasury address on Tron</div>
+          <div style="display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--dim);"><span style="color:var(--red);font-weight:900;flex-shrink:0;">03</span>Retry with <span style="font-family:monospace;margin:0 4px;">X-Payment: &lt;tx_hash&gt;</span> header — get full response</div>
+        </div>
+      </div>
+      <div class="model-cell" style="padding:24px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--muted);margin-bottom:16px;text-transform:uppercase;">Sun Points Incentives</div>
+        <ul class="model-list">
+          <li>+5 pts per confirmed threat report</li>
+          <li>+2 pts per daily login (streak multiplier)</li>
+          <li>+5 pts per outcome report that improves Anubis</li>
+          <li>Score updates flow back to TrustPassport.sol on-chain</li>
+          <li>Non-transferable · earned, not bought</li>
+        </ul>
       </div>
     </div>
   </div>
@@ -295,7 +334,7 @@
     <div class="cta-title">Trust is the primitive<br>the agent economy needs.</div>
     <p class="cta-sub">The missing infrastructure layer for AI agents, DeFi protocols, and B2B commerce on Tron.</p>
     <div class="cta-btns">
-      <a href="dashboard.html" class="btn-primary">Try the Lookup →</a>
+      <div class="btn-wrap"><a href="dashboard.html" class="btn-primary">Try the Lookup →</a></div>
       <button class="btn-outline">View on GitHub</button>
     </div>
   </div>

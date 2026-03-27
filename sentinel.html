@@ -187,6 +187,25 @@
           <div class="flow-step"><div class="flow-num">2</div>Sentinel verifies on-chain evidence</div>
           <div class="flow-step"><div class="flow-num">3</div>3 reports → auto-blacklist + score = 0</div>
           <div class="flow-step"><div class="flow-num">4</div>All Guard SDK users block instantly</div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border2);font-size:12px;color:var(--dim);">Reporter earns <span style="color:var(--score-y);font-weight:700;">☀️ +5 Sun Points</span> per confirmed report.</div>
+        </div>
+
+        <div class="immunity-panel" style="margin-top:0;">
+          <div class="immunity-title">Report a Threat</div>
+          <div class="immunity-desc">Submit a malicious address. 3 independent reports triggers auto-blacklist on TronTrustOracle.</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <input id="reportAddr" type="text" placeholder="Malicious address (T...)" style="background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:9px 12px;font-size:12px;font-family:monospace;outline:none;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);width:100%;">
+            <select id="reportType" style="background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:9px 12px;font-size:12px;outline:none;width:100%;">
+              <option value="energy_drain">Energy Drain</option>
+              <option value="fake_usdt">Fake USDT</option>
+              <option value="freeze_abuse">Freeze Abuse</option>
+              <option value="permission_bypass">Permission Bypass</option>
+              <option value="address_poisoning">Address Poisoning</option>
+              <option value="sr_manipulation">SR Manipulation</option>
+            </select>
+            <div class="btn-wrap" style="width:100%;"><button onclick="submitReport()" class="btn-sm" style="width:100%;text-align:center;">Submit Report</button></div>
+            <div id="reportResult" style="font-size:11px;color:var(--dim);min-height:16px;"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -203,39 +222,100 @@
 </footer>
 
 <script>
-  const DEFS=[
-    {icon:'⚡',type:'ENERGY DRAIN ATTACK',  color:'var(--score-r)',sev:'CRITICAL',sc:'b-red',   detail:()=>`T${r()}... → victim T${r()}...`,       cat:'critical'},
-    {icon:'🪙',type:'FAKE USDT CONTRACT',   color:'var(--score-y)',sev:'HIGH',    sc:'b-yellow',detail:()=>`T${r()}... spoofing TR7NHq...`,         cat:'high'},
-    {icon:'🔒',type:'FREEZE AUTHORITY ABUSE',color:'var(--score-y)',sev:'HIGH',   sc:'b-yellow',detail:()=>`T${r()}... hidden freeze fn activated`, cat:'high'},
-    {icon:'🔑',type:'PERMISSION BYPASS',    color:'var(--dim)',    sev:'MEDIUM',  sc:'b-dim',   detail:()=>`T${r()}... multi-sig abuse`,            cat:'medium'},
-    {icon:'📍',type:'ADDRESS POISONING',    color:'var(--dim)',    sev:'MEDIUM',  sc:'b-dim',   detail:()=>`Vanity spoof of T${r()}...`,            cat:'medium'},
-    {icon:'🗳️',type:'SR VOTE MANIPULATION', color:'var(--score-y)',sev:'HIGH',   sc:'b-yellow',detail:()=>`Cluster: T${r()}... + T${r()}...`,      cat:'high'},
-  ];
-  function r(){return Math.random().toString(36).slice(2,8).toUpperCase();}
-  let alerts=[], filter='all';
-  const seeds=[DEFS[0],DEFS[1],DEFS[2],DEFS[0],DEFS[3],DEFS[4],DEFS[1],DEFS[5]];
-  const agoLabels=['just now','1 min ago','2 min ago','5 min ago','9 min ago','14 min ago','22 min ago','41 min ago'];
-  alerts=seeds.map((d,i)=>({...d,det:d.detail(),time:agoLabels[i]}));
+  const API_BASE = 'http://localhost:8000/api/v1';
 
-  function renderFeed(){
-    const feed=document.getElementById('alertFeed');
-    const vis=filter==='all'?alerts:alerts.filter(a=>a.cat===filter);
-    feed.innerHTML=vis.map(a=>`
+  const DEFS = [
+    {icon:'⚡', type:'ENERGY DRAIN ATTACK',   color:'var(--score-r)', sev:'CRITICAL', sc:'b-red',    detail:()=>`T${r()}... draining energy from T${r()}...`,   cat:'critical', alert_type:'energy_drain'},
+    {icon:'🪙', type:'FAKE USDT CONTRACT',    color:'var(--score-y)', sev:'CRITICAL', sc:'b-red',    detail:()=>`T${r()}... spoofing TR7NHqjeKQxGTCi8q8ZY...`,  cat:'critical', alert_type:'fake_usdt'},
+    {icon:'🔒', type:'FREEZE AUTHORITY ABUSE',color:'var(--score-y)', sev:'HIGH',     sc:'b-yellow', detail:()=>`T${r()}... hidden freeze fn — ${Math.floor(Math.random()*8+3)} calls`, cat:'high', alert_type:'freeze_abuse'},
+    {icon:'🔑', type:'PERMISSION BYPASS',     color:'var(--dim)',     sev:'HIGH',     sc:'b-yellow', detail:()=>`T${r()}... multi-sig threshold=1, ${Math.floor(Math.random()*4+4)} keys`, cat:'high', alert_type:'permission_bypass'},
+    {icon:'📍', type:'ADDRESS POISONING',     color:'var(--dim)',     sev:'MEDIUM',   sc:'b-dim',    detail:()=>`Vanity spoof targeting T${r()}...`,             cat:'medium', alert_type:'address_poisoning'},
+    {icon:'🗳️', type:'SR VOTE MANIPULATION',  color:'var(--score-y)', sev:'HIGH',     sc:'b-yellow', detail:()=>`Cluster: T${r()}... + T${r()}... coordinated`,  cat:'high', alert_type:'sr_manipulation'},
+  ];
+
+  function r(){ return Math.random().toString(36).slice(2,8).toUpperCase(); }
+  let alertCounter = 1000;
+  function anubisId(){ return 'ANUBIS-' + String(alertCounter++).padStart(6,'0'); }
+
+  let alerts = [], filter = 'all';
+  const seeds = [DEFS[0],DEFS[1],DEFS[2],DEFS[0],DEFS[3],DEFS[4],DEFS[1],DEFS[5]];
+  const agoLabels = ['just now','1 min ago','2 min ago','5 min ago','9 min ago','14 min ago','22 min ago','41 min ago'];
+  alerts = seeds.map((d,i) => ({...d, det:d.detail(), time:agoLabels[i], id:anubisId()}));
+
+  function renderFeed() {
+    const feed = document.getElementById('alertFeed');
+    const vis = filter === 'all' ? alerts : alerts.filter(a => a.cat === filter);
+    feed.innerHTML = vis.map(a => `
       <div class="alert-row">
         <div class="alert-icon">${a.icon}</div>
         <div class="alert-body">
           <div class="alert-type" style="color:${a.color}">${a.type}</div>
           <div class="alert-detail">${a.det}</div>
-          <div class="alert-time">${a.time}</div>
+          <div class="alert-time">${a.id} · ${a.time}</div>
         </div>
         <span class="badge ${a.sc}" style="flex-shrink:0;">${a.sev}</span>
       </div>`).join('');
   }
-  function setFilter(f,btn){
-    filter=f;
-    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('on'));
-    btn.classList.add('on'); renderFeed();
+
+  function setFilter(f, btn) {
+    filter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    renderFeed();
   }
+
+  async function submitReport() {
+    const addr = document.getElementById('reportAddr').value.trim();
+    const type = document.getElementById('reportType').value;
+    const result = document.getElementById('reportResult');
+    if (!addr) { result.textContent = 'Enter a wallet address.'; result.style.color='var(--score-r)'; return; }
+
+    result.textContent = 'Submitting…';
+    try {
+      const res = await fetch(`${API_BASE}/threat/report?maliciousAddress=${addr}&threatType=${type}&evidence=user_report&reporterAddress=TDemoReporter001`, { method:'POST', signal:AbortSignal.timeout(4000) });
+      const data = await res.json();
+      if (data.autoBlacklisted) {
+        result.innerHTML = `Auto-blacklisted after ${data.reportCount} reports. <span style="color:var(--score-y)">☀️ +${data.sunPointsEarned} Sun Points earned.</span>`;
+        document.getElementById('blackCount').textContent = parseInt(document.getElementById('blackCount').textContent)+1;
+      } else {
+        result.innerHTML = `Report ${data.reportCount}/3 filed. <span style="color:var(--score-y)">☀️ +${data.sunPointsEarned || 5} Sun Points earned.</span>`;
+      }
+      result.style.color = 'var(--score-g)';
+    } catch(e) {
+      // Demo fallback
+      result.innerHTML = `Report filed (demo mode). <span style="color:var(--score-y)">☀️ +5 Sun Points earned.</span>`;
+      result.style.color = 'var(--score-g)';
+    }
+    document.getElementById('reportAddr').value = '';
+  }
+
+  // Try to load real alerts from API, fall back to demo
+  async function loadAlerts() {
+    try {
+      const res = await fetch(`${API_BASE}/sentinel/alerts?limit=20`, { signal:AbortSignal.timeout(3000) });
+      const data = await res.json();
+      if (data.alerts && data.alerts.length > 0) {
+        const TYPE_MAP = {
+          energy_drain:{icon:'⚡',type:'ENERGY DRAIN ATTACK',color:'var(--score-r)',sev:'CRITICAL',sc:'b-red',cat:'critical'},
+          fake_usdt:{icon:'🪙',type:'FAKE USDT CONTRACT',color:'var(--score-y)',sev:'CRITICAL',sc:'b-red',cat:'critical'},
+          freeze_abuse:{icon:'🔒',type:'FREEZE AUTHORITY ABUSE',color:'var(--score-y)',sev:'HIGH',sc:'b-yellow',cat:'high'},
+          permission_bypass:{icon:'🔑',type:'PERMISSION BYPASS',color:'var(--dim)',sev:'HIGH',sc:'b-yellow',cat:'high'},
+          address_poisoning:{icon:'📍',type:'ADDRESS POISONING',color:'var(--dim)',sev:'MEDIUM',sc:'b-dim',cat:'medium'},
+          sr_manipulation:{icon:'🗳️',type:'SR VOTE MANIPULATION',color:'var(--score-y)',sev:'HIGH',sc:'b-yellow',cat:'high'},
+          high_risk_agent:{icon:'🚨',type:'HIGH RISK AGENT',color:'var(--score-r)',sev:'CRITICAL',sc:'b-red',cat:'critical'},
+        };
+        alerts = data.alerts.map(a => {
+          const t = TYPE_MAP[a.alert_type] || {icon:'⚠️',type:a.alert_type,color:'var(--dim)',sev:'MEDIUM',sc:'b-dim',cat:'medium'};
+          const ago = Math.round((Date.now()/1000 - a.timestamp)/60);
+          return {...t, det:a.description, time:ago<1?'just now':ago+'m ago', id:a.alert_id};
+        });
+        renderFeed();
+        return;
+      }
+    } catch(e) {}
+    renderFeed(); // use demo data
+  }
+
   const toggle = document.getElementById('themeToggle');
   const saved = localStorage.getItem('trontrust-theme');
   if (saved === 'light') { document.documentElement.setAttribute('data-theme','light'); toggle.textContent = '☀️'; }
@@ -245,16 +325,16 @@
     else { document.documentElement.setAttribute('data-theme','light'); toggle.textContent = '☀️'; localStorage.setItem('trontrust-theme','light'); }
   });
 
-  renderFeed();
-  setInterval(()=>{
-    const def=DEFS[Math.floor(Math.random()*DEFS.length)];
-    alerts.unshift({...def,det:def.detail(),time:'just now'});
-    if(alerts.length>20) alerts.pop();
-    const el=id=>document.getElementById(id);
-    if(def.sev==='CRITICAL') el('critCount').textContent=parseInt(el('critCount').textContent)+1;
-    else if(def.sev==='HIGH') el('highCount').textContent=parseInt(el('highCount').textContent)+1;
+  loadAlerts();
+  setInterval(() => {
+    const def = DEFS[Math.floor(Math.random()*DEFS.length)];
+    alerts.unshift({...def, det:def.detail(), time:'just now', id:anubisId()});
+    if (alerts.length > 20) alerts.pop();
+    const el = id => document.getElementById(id);
+    if (def.sev === 'CRITICAL') el('critCount').textContent = parseInt(el('critCount').textContent)+1;
+    else if (def.sev === 'HIGH') el('highCount').textContent = parseInt(el('highCount').textContent)+1;
     renderFeed();
-  },4000);
+  }, 4000);
 </script>
 
 <div id="cursorGlow"></div>
