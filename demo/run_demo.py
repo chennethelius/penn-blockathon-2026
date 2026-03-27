@@ -162,7 +162,7 @@ def scenario_3():
     reporters = [
         (REPORTER_1, "energy_drain"),
         (REPORTER_2, "fake_usdt"),
-        (REPORTER_3, "phishing"),
+        (REPORTER_3, "address_poisoning"),
     ]
 
     for i, (reporter, threat_type) in enumerate(reporters, 1):
