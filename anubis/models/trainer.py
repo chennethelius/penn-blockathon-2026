@@ -40,7 +40,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 
 RANDOM_SEED = 42
 N_SAMPLES = 50_000          # synthetic dataset size
-MODEL_PATH = Path(__file__).parent / "anubis_v1.json"
+MODEL_PATH  = Path(__file__).parent / "anubis_v1.json"
+META_PATH   = Path(__file__).parent / "anubis_v1_meta.json"
 SCALER_PATH = Path(__file__).parent / "scaler.json"
 
 
@@ -383,7 +384,7 @@ def train(
         "risky_ratio": float(y.mean()),
         "model_version": "anubis_v1",
     }
-    meta_path = model_path.parent / "anubis_v1_meta.json"
+    meta_path = META_PATH
     meta_path.write_text(json.dumps(meta, indent=2))
     logger.info("Metadata saved to %s", meta_path)
 

@@ -70,6 +70,7 @@ async def lifespan(app: FastAPI):
     _extractor = TronFeatureExtractor(
         trongrid_base=os.getenv("TRONGRID_BASE_URL", "https://api.trongrid.io"),
         api_key=os.getenv("TRONGRID_API_KEY", ""),
+        tronscan_api_key=os.getenv("TRONSCAN_API_KEY", ""),
     )
 
     # Model
@@ -123,10 +124,10 @@ app.add_middleware(
 # Helper: build feature vector from request
 # ---------------------------------------------------------------------------
 
-async def _build_fv(address: str, features: Optional[dict]) -> AgentFeatureVector:
+async def _build_fv(address: str, features: Optional[dict], is_token: bool = False) -> AgentFeatureVector:
     """
     If features dict is provided (e.g. from a test or cached data), use it.
-    Otherwise extract live from TronGrid.
+    Otherwise extract live from TronGrid/TronScan.
     """
     if features:
         fv = AgentFeatureVector(address=address)
@@ -135,6 +136,8 @@ async def _build_fv(address: str, features: Optional[dict]) -> AgentFeatureVecto
                 setattr(fv, name, float(val))
         fv.clamp()
         return fv
+    elif is_token:
+        return await _extractor.extract_token(address)
     else:
         return await _extractor.extract(address)
 
@@ -160,7 +163,7 @@ async def predict_token(req: TokenPredictRequest):
     Predict rug probability for a TRC-20 token contract.
     Focuses on token health features (liquidity, holder concentration, honeypot signals).
     """
-    fv = await _build_fv(req.token_address, req.features)
+    fv = await _build_fv(req.token_address, req.features, is_token=True)
     result = _predictor.predict(fv)
 
     # Enrich with token-specific interpretation

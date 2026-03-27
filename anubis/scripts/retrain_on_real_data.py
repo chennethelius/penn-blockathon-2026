@@ -19,9 +19,11 @@ Usage:
     python3 scripts/retrain_on_real_data.py --eval               # run cross-validation
 """
 import argparse
+import json
 import logging
 import sys
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -38,25 +40,26 @@ from models.trainer import (
     META_PATH,
     RANDOM_SEED,
 )
-import json
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("retrain")
 
 REAL_DATA_PATH  = Path(__file__).parent.parent / "data" / "real" / "features.csv"
+TOKEN_DATA_PATH = Path(__file__).parent.parent / "data" / "real" / "token_features.csv"
 REAL_DATA_WEIGHT = 0.2   # fraction of total dataset from real data (rest = synthetic)
 N_SYNTHETIC      = 10_000  # synthetic samples to blend with
 
 
-def load_real_data() -> tuple[np.ndarray, np.ndarray]:
-    if not REAL_DATA_PATH.exists():
+def load_real_data(data_path: Optional[Path] = None) -> tuple[np.ndarray, np.ndarray]:
+    path = data_path or REAL_DATA_PATH
+    if not path.exists():
         raise FileNotFoundError(
-            f"No real data found at {REAL_DATA_PATH}. "
-            "Run scripts/collect_real_data.py first."
+            f"No real data found at {path}. "
+            "Run scripts/collect_real_data.py or scripts/collect_token_data.py first."
         )
 
-    df = pd.read_csv(REAL_DATA_PATH)
-    logger.info("Loaded %d real samples from %s", len(df), REAL_DATA_PATH)
+    df = pd.read_csv(path)
+    logger.info("Loaded %d real samples from %s", len(df), path)
 
     missing = [f for f in AGENT_FEATURES if f not in df.columns]
     if missing:
@@ -112,8 +115,9 @@ def retrain(
     real_weight: float = REAL_DATA_WEIGHT,
     real_only: bool = False,
     eval_mode: bool = False,
+    data_path: Optional[Path] = None,
 ):
-    X_real, y_real = load_real_data()
+    X_real, y_real = load_real_data(data_path)
 
     if real_only:
         logger.info("Training on real data only (%d samples)", len(y_real))
@@ -185,6 +189,7 @@ def retrain(
         "model_version": "anubis_v1",
         "trained_on": "blend" if not real_only else "real_only",
         "real_weight": real_weight if not real_only else 1.0,
+        "data_source": str(data_path) if data_path else str(REAL_DATA_PATH),
     }
     META_PATH.write_text(json.dumps(meta, indent=2))
     logger.info("Metadata saved to %s", META_PATH)
@@ -198,15 +203,24 @@ def retrain(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--real-weight", type=float, default=REAL_DATA_WEIGHT,
-                        help="Fraction of total training data from real wallets (default 0.2)")
+                        help="Fraction of total training data from real data (default 0.2)")
     parser.add_argument("--real-only", action="store_true",
                         help="Train on real data only (no synthetic blending)")
     parser.add_argument("--eval", action="store_true",
                         help="Run cross-validation before final training")
+    parser.add_argument(
+        "--data-path", type=str, default=None,
+        help=(
+            "Path to labeled CSV (address + 50 features + label). "
+            f"Defaults to {REAL_DATA_PATH}. "
+            f"Use {TOKEN_DATA_PATH} for token-based training."
+        ),
+    )
     args = parser.parse_args()
 
     retrain(
         real_weight=args.real_weight,
         real_only=args.real_only,
         eval_mode=args.eval,
+        data_path=Path(args.data_path) if args.data_path else None,
     )
