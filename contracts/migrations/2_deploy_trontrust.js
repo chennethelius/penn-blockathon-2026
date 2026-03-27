@@ -5,7 +5,8 @@ const CommercialTrust = artifacts.require("CommercialTrust");
 const TrustEscrow = artifacts.require("TrustEscrow");
 
 module.exports = async function (deployer, network, accounts) {
-  const operatorAddress = accounts[0]; // deployer doubles as operator for testnet
+  // TronBox: use the deployer's address (derived from PRIVATE_KEY_NILE)
+  const operatorAddress = "TX5ug3U97zsLdaNTfS5d89WJXTbvthjYPq";
 
   // 1. Deploy Oracle
   await deployer.deploy(TronTrustOracle, operatorAddress);
