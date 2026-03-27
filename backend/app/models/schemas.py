@@ -50,6 +50,8 @@ class AgentRegisterResponse(BaseModel):
     passportId: int
     initialScore: int = 50
     txHash: str
+    success: bool = True
+    error: Optional[str] = None
 
 
 # --- Token ---

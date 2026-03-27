@@ -154,17 +154,25 @@ async def register_agent(req: AgentRegisterRequest):
         return AgentRegisterResponse(
             passportId=0,
             initialScore=50,
-            txHash="contracts_not_deployed",
+            txHash="",
+            success=False,
+            error="Contracts not deployed. Set contract addresses in .env.",
         )
 
-    # 1. Register on Oracle
-    oracle_tx = contracts.register_agent(req.address, req.agentType)
-
-    # 2. Mint Passport NFT
-    passport_tx = contracts.mint_passport(req.address, req.agentType)
-
-    return AgentRegisterResponse(
-        passportId=0,  # Would need to parse event logs for actual tokenId
-        initialScore=50,
-        txHash=oracle_tx or passport_tx or "",
-    )
+    try:
+        oracle_tx = contracts.register_agent(req.address, req.agentType)
+        passport_tx = contracts.mint_passport(req.address, req.agentType)
+        return AgentRegisterResponse(
+            passportId=0,
+            initialScore=50,
+            txHash=oracle_tx or passport_tx or "",
+            success=True,
+        )
+    except Exception as e:
+        return AgentRegisterResponse(
+            passportId=0,
+            initialScore=50,
+            txHash="",
+            success=False,
+            error=f"On-chain registration failed: {e}",
+        )

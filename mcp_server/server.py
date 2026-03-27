@@ -212,12 +212,30 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     except httpx.HTTPStatusError as e:
         return [TextContent(
             type="text",
-            text=json.dumps({"error": f"API returned {e.response.status_code}", "detail": e.response.text}),
+            text=json.dumps({
+                "error": True,
+                "message": f"TronTrust API returned HTTP {e.response.status_code}",
+                "detail": e.response.text[:500],
+                "hint": "Make sure the TronTrust backend is running on port 8000.",
+            }),
+        )]
+    except httpx.ConnectError:
+        return [TextContent(
+            type="text",
+            text=json.dumps({
+                "error": True,
+                "message": "Cannot connect to TronTrust API",
+                "hint": "Start the backend: cd backend && uvicorn app.main:app --port 8000",
+            }),
         )]
     except Exception as e:
         return [TextContent(
             type="text",
-            text=json.dumps({"error": str(e)}),
+            text=json.dumps({
+                "error": True,
+                "message": str(e),
+                "hint": "Unexpected error. Check backend logs.",
+            }),
         )]
 
 
