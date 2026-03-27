@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TronTrust — Trust Layer for the Tron Agent Economy</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ── HERO ── */
+    .hero {
+      padding: 148px 0 100px; position: relative; overflow: hidden; border-top: none;
+    }
+    .hero-glow-top {
+      position: absolute; top: -140px; left: 50%; transform: translateX(-50%);
+      width: 900px; height: 600px; pointer-events: none;
+      background: radial-gradient(ellipse at 50% 15%, rgba(232,38,26,0.13) 0%, transparent 60%);
+    }
+    .hero-glow-side {
+      position: absolute; top: 0; left: -200px; width: 500px; height: 100%;
+      background: radial-gradient(ellipse at 0% 50%, rgba(232,38,26,0.05) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    /* geometric line accent */
+    .hero-line {
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--red) 30%, transparent 100%);
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--red); margin-bottom: 26px;
+      border: 1px solid var(--border); padding: 6px 14px;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+      background: rgba(232,38,26,0.06);
+    }
+    .hero-eyebrow::before {
+      content: ''; width: 6px; height: 6px; background: var(--red);
+      border-radius: 50%; animation: pulse 2s infinite;
+    }
+    h1 {
+      font-size: clamp(38px, 5.8vw, 70px); font-weight: 900;
+      letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 22px;
+    }
+    h1 .hl { color: var(--red); }
+    .hero-sub {
+      font-size: clamp(15px, 1.8vw, 18px); color: var(--dim);
+      max-width: 540px; line-height: 1.7; margin-bottom: 42px;
+    }
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    /* ── STATS BAR (like tron.network) ── */
+    .stats-bar {
+      background: rgba(13,2,18,0.6);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      box-shadow: 0 1px 0 rgba(232,38,26,0.1);
+      margin-top: 80px;
+    }
+    .stats-bar-inner {
+      display: flex; max-width: 1100px; margin: 0 auto; padding: 0 28px;
+    }
+    .stat-cell {
+      flex: 1; padding: 24px 20px; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat-cell:last-child { border-right: none; }
+    .stat-num { font-size: 26px; font-weight: 900; letter-spacing: -0.02em; color: var(--text); }
+    .stat-lbl { font-size: 11px; color: var(--dim); margin-top: 4px; letter-spacing: 0.04em; }
+    @media (max-width: 700px) {
+      .stats-bar-inner { flex-wrap: wrap; }
+      .stat-cell { flex: 1 1 50%; border-right: none; border-bottom: 1px solid var(--border); }
+    }
+
+    /* ── SCORING MODEL ── */
+    .model-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1px; background: var(--border2);
+      border: 1px solid var(--border); margin-top: 40px;
+    }
+    @media (max-width: 720px) { .model-grid { grid-template-columns: 1fr; } }
+    .model-cell {
+      background: rgba(13,2,18,0.75); padding: 32px;
+      position: relative; transition: background 0.2s;
+      backdrop-filter: blur(8px);
+    }
+    .model-cell::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--red), transparent);
+    }
+    .model-cell:hover { background: var(--bg3); }
+    .model-pct {
+      font-size: 52px; font-weight: 900; letter-spacing: -0.03em; line-height: 1;
+      color: var(--red);
+    }
+    .model-name { font-size: 15px; font-weight: 800; margin: 12px 0 8px; }
+    .model-desc { font-size: 13px; color: var(--dim); line-height: 1.65; }
+    .model-list { list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 6px; }
+    .model-list li {
+      font-size: 12px; color: var(--muted); padding-left: 16px; position: relative;
+    }
+    .model-list li::before { content: '›'; position: absolute; left: 0; color: var(--red); font-size: 14px; line-height: 1.4; }
+
+    /* ── HOW IT WORKS ── */
+    .steps-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 40px; }
+    @media (max-width: 720px) { .steps-grid { grid-template-columns: 1fr; } }
+    .step-card {
+      background: rgba(13,2,18,0.7); border: 1px solid rgba(255,255,255,0.07);
+      padding: 28px; position: relative;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(10px);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .step-card:hover { border-color: rgba(232,38,26,0.22); box-shadow: var(--shadow-lg); }
+    .step-num {
+      width: 34px; height: 34px;
+      background: rgba(232,38,26,0.1); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 900; color: var(--red); margin-bottom: 18px;
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    }
+    .step-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+    .step-desc { font-size: 13px; color: var(--dim); line-height: 1.65; }
+
+    /* ── CTA ── */
+    .cta-section {
+      padding: 100px 0; text-align: center;
+      position: relative; overflow: hidden; border-top: 1px solid var(--border2);
+    }
+    .cta-glow {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      width: 700px; height: 400px; pointer-events: none;
+      background: radial-gradient(ellipse, rgba(232,38,26,0.08) 0%, transparent 65%);
+    }
+    .cta-title {
+      font-size: clamp(28px,4.5vw,54px); font-weight: 900;
+      letter-spacing: -0.03em; margin-bottom: 16px; position: relative;
+    }
+    .cta-sub { font-size: 16px; color: var(--dim); margin-bottom: 40px; position: relative; }
+    .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; }
+  </style>
+</head>
+<body>
+<div class="ambient-bg">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="index.html">
+      <!-- TRON-inspired geometric logo -->
+      <svg class="tron-logo-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="16,2 30,10 30,22 16,30 2,22 2,10" fill="rgba(232,38,26,0.15)" stroke="#e8261a" stroke-width="1.2"/>
+        <polygon points="16,6 26,12 26,20 16,26 6,20 6,12" fill="rgba(232,38,26,0.2)"/>
+        <polygon points="16,10 22,14 22,20 16,24 10,20 10,14" fill="#e8261a"/>
+        <line x1="16" y1="2" x2="16" y2="10" stroke="#e8261a" stroke-width="1"/>
+        <line x1="30" y1="10" x2="22" y2="14" stroke="#e8261a" stroke-width="1"/>
+        <line x1="30" y1="22" x2="22" y2="20" stroke="#e8261a" stroke-width="1"/>
+      </svg>
+      <div class="nav-logo-text"><em>TRON</em><span>Trust</span></div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="dashboard.html">Lookup</a></li>
+      <li><a href="sentinel.html">Sentinel</a></li>
+      <li><a href="passport.html">Passport</a></li>
+    </ul>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="theme-toggle" id="themeToggle" title="Toggle day/night mode">🌙</button>
+      <button class="nav-cta">Connect TronLink</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-line"></div>
+  <div class="hero-glow-top"></div>
+  <div class="hero-glow-side"></div>
+  <div class="container" style="position:relative;z-index:1;">
+    <div class="hero-eyebrow">PennBlockathon 2026 · Nile Testnet</div>
+    <h1>The trust layer for<br>the <span class="hl">Tron agent economy.</span></h1>
+    <p class="hero-sub">
+      TronTrust scores every wallet on Tron — AI agents, smart contracts, and businesses —
+      using on-chain behavior, ML risk analysis, and community reputation.
+    </p>
+    <div class="hero-btns">
+      <a href="dashboard.html" class="btn-primary">Check an Agent →</a>
+      <a href="passport.html" class="btn-outline">MCP Integration</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-bar-inner">
+    <div class="stat-cell">
+      <div class="stat-num">50</div>
+      <div class="stat-lbl">Tron-Native ML Features</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">3</div>
+      <div class="stat-lbl">Trust Signals Combined</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">6</div>
+      <div class="stat-lbl">Tron-Specific Threats</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">x402</div>
+      <div class="stat-lbl">Pay-Per-Call via USDT</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCORING MODEL -->
+<section>
+  <div class="container">
+    <div class="sec-label">Scoring Model</div>
+    <h2 class="sec-title">Three signals. One score.</h2>
+    <p class="sec-sub">Every TronTrust score is a weighted composite — built entirely from Tron-native data sources.</p>
+    <div class="model-grid">
+      <div class="model-cell">
+        <div class="model-pct">50%</div>
+        <div class="model-name">On-Chain Behavior</div>
+        <div class="model-desc">25 Tron-native signals from TronGrid, JustLend, and SunSwap.</div>
+        <ul class="model-list">
+          <li>JustLend repayment rate (strongest signal)</li>
+          <li>SunSwap wash-trading detection</li>
+          <li>USDT-TRC20 transfer graph analysis</li>
+          <li>Energy drain pattern detection</li>
+          <li>Smart contract audit status</li>
+        </ul>
+      </div>
+      <div class="model-cell">
+        <div class="model-pct">30%</div>
+        <div class="model-name">Anubis ML Engine</div>
+        <div class="model-desc">XGBoost trained on 50 Tron-native features with Monte Carlo confidence bands.</div>
+        <ul class="model-list">
+          <li>Rug probability prediction</li>
+          <li>Token health (15 features)</li>
+          <li>Network &amp; threat signals (10 features)</li>
+          <li>Monte Carlo p5/p95 confidence bands</li>
+          <li>Retrained on reported outcomes</li>
+        </ul>
+      </div>
+      <div class="model-cell">
+        <div class="model-pct">20%</div>
+        <div class="model-name">Community Reviews</div>
+        <div class="model-desc">Peer reputation with Claude AI quality filtering and Sun Points incentives.</div>
+        <ul class="model-list">
+          <li>Claude API spam &amp; quality filter</li>
+          <li>5 Sun Points per outcome report</li>
+          <li>3 reports → auto-blacklist</li>
+          <li>Collective Immunity across Guard users</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section>
+  <div class="container">
+    <div class="sec-label">How It Works</div>
+    <h2 class="sec-title">From wallet to verdict in seconds.</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-title">Submit an address</div>
+        <div class="step-desc">Paste any Tron wallet into the lookup tool or call the REST API or MCP server directly from your agent.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-title">Anubis scores it</div>
+        <div class="step-desc">The ML engine fetches 50 Tron-native features, runs XGBoost, and returns a score with Monte Carlo confidence bands.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-title">Act on the verdict</div>
+        <div class="step-desc">TRUSTED, CAUTION, or BLACKLISTED. The Guard SDK auto-blocks untrusted wallets before any transaction is signed.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-glow"></div>
+  <div class="container">
+    <div class="cta-title">Trust is the primitive<br>the agent economy needs.</div>
+    <p class="cta-sub">The missing infrastructure layer for AI agents, DeFi protocols, and B2B commerce on Tron.</p>
+    <div class="cta-btns">
+      <a href="dashboard.html" class="btn-primary">Try the Lookup →</a>
+      <button class="btn-outline">View on GitHub</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-copy">© 2026 TronTrust · PennBlockathon 2026 · Nile Testnet</div>
+      <div class="footer-links">
+        <a href="#">Docs</a><a href="#">GitHub</a><a href="#">x402 API</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+  const toggle = document.getElementById('themeToggle');
+  const saved = localStorage.getItem('trontrust-theme');
+  if (saved === 'light') { document.documentElement.setAttribute('data-theme','light'); toggle.textContent = '☀️'; }
+  toggle.addEventListener('click', () => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    if (isLight) {
+      document.documentElement.removeAttribute('data-theme');
+      toggle.textContent = '🌙';
+      localStorage.setItem('trontrust-theme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      toggle.textContent = '☀️';
+      localStorage.setItem('trontrust-theme', 'light');
+    }
+  });
+</script>
+</body>
+</html>
