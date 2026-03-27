@@ -189,8 +189,8 @@
       using on-chain behavior, ML risk analysis, and community reputation.
     </p>
     <div class="hero-btns">
-      <div class="btn-wrap"><a href="dashboard.html" class="btn-primary">Check an Agent →</a></div>
-      <a href="passport.html" class="btn-outline">MCP Integration</a>
+      <div class="btn-wrap"><a href="#tryit" class="btn-primary">Deploy an Agent →</a></div>
+      <a href="dashboard.html" class="btn-outline">Trust Lookup</a>
     </div>
   </div>
 </section>
@@ -216,6 +216,69 @@
     </div>
   </div>
 </div>
+
+<!-- TRY IT LIVE -->
+<section id="tryit" style="padding-top:80px;">
+  <div class="container">
+    <div class="sec-label">Try It Live</div>
+    <h2 class="sec-title">Deploy, check, and transact — on Nile testnet.</h2>
+    <p class="sec-sub">No wallet needed. Real on-chain transactions. Click a button and watch it happen.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:32px;">
+
+      <!-- 1. Deploy Agent -->
+      <div style="background:rgba(13,2,18,0.75);border:1px solid rgba(255,255,255,0.09);padding:24px;position:relative;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%);">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),transparent);"></div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);margin-bottom:12px;">01 · Deploy Agent</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:6px;">Register on TronTrustOracle</div>
+        <div style="font-size:12px;color:var(--dim);margin-bottom:16px;line-height:1.6;">Creates an AgentProfile on-chain and mints a soul-bound TrustPassport NFT. Initial score: 50.</div>
+        <input id="deployAddr" type="text" placeholder="Wallet address (T...)" style="width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:8px 10px;font-size:12px;font-family:monospace;outline:none;margin-bottom:8px;box-sizing:border-box;">
+        <select id="deployType" style="width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:8px 10px;font-size:12px;outline:none;margin-bottom:8px;box-sizing:border-box;">
+          <option value="DeFi Bot">DeFi Bot</option>
+          <option value="Trading Agent">Trading Agent</option>
+          <option value="Payment Agent">Payment Agent</option>
+          <option value="Lending Agent">Lending Agent</option>
+          <option value="NFT Agent">NFT Agent</option>
+          <option value="Data Agent">Data Agent</option>
+        </select>
+        <div class="btn-wrap" style="width:100%;"><button onclick="deployAgent()" id="deployBtn" style="width:100%;background:var(--red);color:#fff;border:none;padding:10px;font-size:13px;font-weight:700;cursor:pointer;">Deploy on Tron →</button></div>
+        <div id="deployResult" style="font-size:11px;color:var(--dim);margin-top:8px;min-height:32px;line-height:1.6;"></div>
+      </div>
+
+      <!-- 2. Check Trust -->
+      <div style="background:rgba(13,2,18,0.75);border:1px solid rgba(255,255,255,0.09);padding:24px;position:relative;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%);">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),transparent);"></div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);margin-bottom:12px;">02 · Check Trust</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:6px;">Query the Anubis ML Engine</div>
+        <div style="font-size:12px;color:var(--dim);margin-bottom:16px;line-height:1.6;">50 features extracted from TronGrid → XGBoost prediction → trust score + verdict.</div>
+        <input id="checkAddr" type="text" placeholder="Wallet address to check" style="width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:8px 10px;font-size:12px;font-family:monospace;outline:none;margin-bottom:8px;box-sizing:border-box;">
+        <div class="btn-wrap" style="width:100%;"><button onclick="checkTrust()" id="checkBtn" style="width:100%;background:var(--red);color:#fff;border:none;padding:10px;font-size:13px;font-weight:700;cursor:pointer;">Check Trust Score →</button></div>
+        <div id="checkResult" style="font-size:11px;color:var(--dim);margin-top:8px;min-height:32px;line-height:1.6;"></div>
+      </div>
+
+      <!-- 3. Simulate Payment -->
+      <div style="background:rgba(13,2,18,0.75);border:1px solid rgba(255,255,255,0.09);padding:24px;position:relative;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%);">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),transparent);"></div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);margin-bottom:12px;">03 · Trust-Gated Payment</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:6px;">TrustWallet enforces on-chain</div>
+        <div style="font-size:12px;color:var(--dim);margin-bottom:16px;line-height:1.6;">Smart contract wallet checks Oracle before sending. Below threshold → transaction reverts.</div>
+        <input id="payTo" type="text" placeholder="Recipient address" style="width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:8px 10px;font-size:12px;font-family:monospace;outline:none;margin-bottom:8px;box-sizing:border-box;">
+        <input id="payAmount" type="number" placeholder="Amount (TRX)" value="10" style="width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:8px 10px;font-size:12px;outline:none;margin-bottom:8px;box-sizing:border-box;">
+        <div class="btn-wrap" style="width:100%;"><button onclick="simulatePayment()" id="payBtn" style="width:100%;background:var(--red);color:#fff;border:none;padding:10px;font-size:13px;font-weight:700;cursor:pointer;">Send with Trust Check →</button></div>
+        <div id="payResult" style="font-size:11px;color:var(--dim);margin-top:8px;min-height:32px;line-height:1.6;"></div>
+      </div>
+    </div>
+
+    <!-- Seeded agents for quick testing -->
+    <div style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span style="font-size:11px;color:var(--muted);">Try these seeded agents:</span>
+      <button onclick="fillAgent('TX5ug3U97zsLdaNTfS5d89WJXTbvthjYPq','DeFi Bot')" style="background:var(--bg2);border:1px solid var(--border2);color:var(--dim);padding:4px 10px;font-size:11px;cursor:pointer;">DeFi Bot · 72</button>
+      <button onclick="fillAgent('TLyqzVGLV1srkB7dToTAEqgDSfPtXRJZYH','Trading Agent')" style="background:var(--bg2);border:1px solid var(--border2);color:var(--dim);padding:4px 10px;font-size:11px;cursor:pointer;">Trading Agent · 85</button>
+      <button onclick="fillAgent('TKcEU8ekq2ZoFzLSGFYCUY6aocJBX9X31b','Bridge Bot')" style="background:var(--bg2);border:1px solid var(--border2);color:var(--score-r);padding:4px 10px;font-size:11px;cursor:pointer;">Bridge Bot · 25</button>
+      <button onclick="fillAgent('TAUN6FwrnwwmaEqYcckffC7wYmbaS6cBiX','Spam Bot')" style="background:var(--bg2);border:1px solid var(--border2);color:var(--score-r);padding:4px 10px;font-size:11px;cursor:pointer;">Spam Bot · 12</button>
+    </div>
+  </div>
+</section>
 
 <!-- SCORING MODEL -->
 <section>
@@ -457,6 +520,109 @@
     }
     draw();
   })();
+
+  // ── Try It Live ──
+  const API = 'http://localhost:8000/api/v1';
+  const SCAN = 'https://nile.tronscan.org/#/transaction/';
+
+  function scoreColor(s){ return s>=80?'#22c55e':s>=60?'#3b82f6':s>=40?'#facc15':'#f87171'; }
+
+  function fillAgent(addr, type) {
+    document.getElementById('deployAddr').value = addr;
+    document.getElementById('checkAddr').value = addr;
+    document.getElementById('payTo').value = addr;
+  }
+
+  async function deployAgent() {
+    const addr = document.getElementById('deployAddr').value.trim();
+    const type = document.getElementById('deployType').value;
+    const btn = document.getElementById('deployBtn');
+    const res = document.getElementById('deployResult');
+    if (!addr) { res.innerHTML = '<span style="color:var(--score-r)">Enter an address</span>'; return; }
+
+    btn.textContent = 'Deploying...'; btn.disabled = true;
+    try {
+      const r = await fetch(`${API}/agent/register`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({address:addr, agentType:type}),
+        signal: AbortSignal.timeout(15000),
+      });
+      const d = await r.json();
+      if (d.success === false) {
+        res.innerHTML = `<span style="color:var(--score-r)">${d.error}</span>`;
+      } else {
+        const tx = d.txHash;
+        res.innerHTML = `<span style="color:#22c55e">Agent deployed! Score: 50</span><br>` +
+          `TX: <a href="${SCAN}${tx}" target="_blank" style="color:var(--red)">${tx.slice(0,20)}...</a><br>` +
+          `<span style="color:var(--dim)">Passport NFT minted on TrustPassport.sol</span>`;
+      }
+    } catch(e) { res.innerHTML = `<span style="color:var(--score-r)">${e.message}</span>`; }
+    btn.textContent = 'Deploy on Tron →'; btn.disabled = false;
+  }
+
+  async function checkTrust() {
+    const addr = document.getElementById('checkAddr').value.trim();
+    const btn = document.getElementById('checkBtn');
+    const res = document.getElementById('checkResult');
+    if (!addr) { res.innerHTML = '<span style="color:var(--score-r)">Enter an address</span>'; return; }
+
+    btn.textContent = 'Checking...'; btn.disabled = true;
+    try {
+      const r = await fetch(`${API}/agent/${addr}`, {signal:AbortSignal.timeout(10000)});
+      const d = await r.json();
+      const s = d.trustScore;
+      const c = scoreColor(s);
+      const flags = (d.flags||[]).map(f=>f.replace(/_/g,' ')).join(', ') || 'none';
+      res.innerHTML =
+        `<span style="font-size:22px;font-weight:900;color:${c}">${s}</span> ` +
+        `<span style="color:${c};font-weight:700">${(d.verdict||'').toUpperCase()}</span><br>` +
+        `<span style="color:var(--dim)">Flags: ${flags}</span><br>` +
+        `<span style="color:var(--dim)">Behavioral: ${d.breakdown?.behavioral ?? '—'} · Token: ${d.breakdown?.tokenHealth ?? '—'}</span>`;
+    } catch(e) { res.innerHTML = `<span style="color:var(--score-r)">${e.message}</span>`; }
+    btn.textContent = 'Check Trust Score →'; btn.disabled = false;
+  }
+
+  async function simulatePayment() {
+    const to = document.getElementById('payTo').value.trim();
+    const amount = parseFloat(document.getElementById('payAmount').value) || 0;
+    const btn = document.getElementById('payBtn');
+    const res = document.getElementById('payResult');
+    if (!to) { res.innerHTML = '<span style="color:var(--score-r)">Enter a recipient</span>'; return; }
+
+    btn.textContent = 'Checking trust...'; btn.disabled = true;
+    try {
+      // First check if it would pass
+      const checkR = await fetch(`${API}/wallet/check/${to}`, {signal:AbortSignal.timeout(10000)});
+      const check = await checkR.json();
+
+      if (check.verdict === 'BLOCKED') {
+        res.innerHTML =
+          `<span style="color:var(--score-r);font-weight:700">BLOCKED</span> by TrustWallet<br>` +
+          `<span style="color:var(--dim)">Recipient score: ${check.onChainScore} · Min required: ${check.minRequired}</span><br>` +
+          `<span style="color:var(--dim)">Flags: ${(check.riskFlags||[]).join(', ') || 'none'}</span><br>` +
+          `<span style="color:var(--score-r)">Smart contract reverted — funds safe.</span>`;
+      } else {
+        // Try the actual send
+        const sendR = await fetch(`${API}/wallet/send`, {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({to, amountTrx:amount}),
+          signal: AbortSignal.timeout(15000),
+        });
+        const send = await sendR.json();
+        if (send.success) {
+          res.innerHTML =
+            `<span style="color:#22c55e;font-weight:700">APPROVED</span> — ${amount} TRX sent<br>` +
+            `<span style="color:var(--dim)">Recipient score: ${send.recipientScore}</span><br>` +
+            `TX: <a href="${SCAN}${send.txHash}" target="_blank" style="color:var(--red)">${send.txHash.slice(0,20)}...</a>`;
+        } else {
+          res.innerHTML =
+            `<span style="color:var(--score-r);font-weight:700">BLOCKED</span><br>` +
+            `<span style="color:var(--dim)">${send.error}</span>`;
+        }
+      }
+    } catch(e) { res.innerHTML = `<span style="color:var(--score-r)">${e.message}</span>`; }
+    btn.textContent = 'Send with Trust Check →'; btn.disabled = false;
+  }
 
   const toggle = document.getElementById('themeToggle');
   const saved = localStorage.getItem('trontrust-theme');
