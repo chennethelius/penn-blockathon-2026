@@ -151,6 +151,60 @@ async def list_tools() -> list[Tool]:
                 "required": ["address", "agent_type"],
             },
         ),
+        Tool(
+            name="trust_send",
+            description="Send TRX from the TrustWallet to a recipient. The wallet enforces trust checks on-chain — if the recipient's trust score is below the minimum threshold, the transaction is blocked by the smart contract. Also runs Anubis ML risk check for wash trading, phishing, and sybil patterns.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "to": {
+                        "type": "string",
+                        "description": "Recipient Tron wallet address",
+                    },
+                    "amount_trx": {
+                        "type": "number",
+                        "description": "Amount of TRX to send",
+                    },
+                },
+                "required": ["to", "amount_trx"],
+            },
+        ),
+        Tool(
+            name="set_min_trust",
+            description="Update the minimum trust score required for outgoing transfers from the TrustWallet. Score 0-100. Higher = stricter. Default is 60.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "new_score": {
+                        "type": "integer",
+                        "description": "New minimum trust score (0-100)",
+                    },
+                },
+                "required": ["new_score"],
+            },
+        ),
+        Tool(
+            name="check_recipient",
+            description="Check if a recipient address would pass the TrustWallet's trust gate before sending. Returns their trust score, ML risk flags, and whether the transfer would be approved or blocked.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "address": {
+                        "type": "string",
+                        "description": "Recipient Tron wallet address to check",
+                    },
+                },
+                "required": ["address"],
+            },
+        ),
+        Tool(
+            name="wallet_stats",
+            description="Get TrustWallet statistics: total transfers, blocked transfers, volume, current minimum trust score, and enforcement status.",
+            inputSchema={
+                "type": "object",
+                "properties": {},
+            },
+        ),
     ]
 
 
@@ -201,6 +255,39 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 "address": arguments["address"],
                 "agentType": arguments["agent_type"],
             })
+            return [TextContent(
+                type="text",
+                text=json.dumps(result, indent=2),
+            )]
+
+        elif name == "trust_send":
+            result = await _api_post("/wallet/send", {
+                "to": arguments["to"],
+                "amountTrx": arguments["amount_trx"],
+            })
+            return [TextContent(
+                type="text",
+                text=json.dumps(result, indent=2),
+            )]
+
+        elif name == "set_min_trust":
+            result = await _api_post("/wallet/set-min-trust", {
+                "newScore": arguments["new_score"],
+            })
+            return [TextContent(
+                type="text",
+                text=json.dumps(result, indent=2),
+            )]
+
+        elif name == "check_recipient":
+            result = await _api_get(f"/wallet/check/{arguments['address']}")
+            return [TextContent(
+                type="text",
+                text=json.dumps(result, indent=2),
+            )]
+
+        elif name == "wallet_stats":
+            result = await _api_get("/wallet/stats")
             return [TextContent(
                 type="text",
                 text=json.dumps(result, indent=2),

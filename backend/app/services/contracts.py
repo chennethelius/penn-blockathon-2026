@@ -28,6 +28,7 @@ ORACLE_ADDRESS = os.getenv("TRONTRUST_ORACLE_ADDRESS", "")
 PASSPORT_ADDRESS = os.getenv("TRUST_PASSPORT_ADDRESS", "")
 GATE_ADDRESS = os.getenv("TRUST_GATE_ADDRESS", "")
 COMMERCIAL_ADDRESS = os.getenv("COMMERCIAL_TRUST_ADDRESS", "")
+TRUST_WALLET_ADDRESS = os.getenv("TRUST_WALLET_ADDRESS", "")
 
 # Verdict mapping: string → uint8 used in contracts
 VERDICT_MAP = {
@@ -222,6 +223,68 @@ COMMERCIAL_ABI = [
     },
 ]
 
+TRUST_WALLET_ABI = [
+    {
+        "name": "send",
+        "type": "function",
+        "stateMutability": "nonpayable",
+        "inputs": [
+            {"name": "_to", "type": "address"},
+            {"name": "_amount", "type": "uint256"},
+        ],
+        "outputs": [],
+    },
+    {
+        "name": "sendToken",
+        "type": "function",
+        "stateMutability": "nonpayable",
+        "inputs": [
+            {"name": "_token", "type": "address"},
+            {"name": "_to", "type": "address"},
+            {"name": "_amount", "type": "uint256"},
+        ],
+        "outputs": [],
+    },
+    {
+        "name": "setMinTrustScore",
+        "type": "function",
+        "stateMutability": "nonpayable",
+        "inputs": [{"name": "_newScore", "type": "uint8"}],
+        "outputs": [],
+    },
+    {
+        "name": "checkRecipient",
+        "type": "function",
+        "stateMutability": "view",
+        "inputs": [{"name": "_to", "type": "address"}],
+        "outputs": [
+            {"name": "score", "type": "uint8"},
+            {"name": "wouldPass", "type": "bool"},
+            {"name": "minRequired", "type": "uint8"},
+        ],
+    },
+    {
+        "name": "getStats",
+        "type": "function",
+        "stateMutability": "view",
+        "inputs": [],
+        "outputs": [
+            {"name": "transfers", "type": "uint256"},
+            {"name": "blocked", "type": "uint256"},
+            {"name": "volumeTrx", "type": "uint256"},
+            {"name": "currentMinScore", "type": "uint8"},
+            {"name": "enforcing", "type": "bool"},
+        ],
+    },
+    {
+        "name": "minTrustScore",
+        "type": "function",
+        "stateMutability": "view",
+        "inputs": [],
+        "outputs": [{"name": "", "type": "uint8"}],
+    },
+]
+
 
 class TronTrustContracts:
     """Manages all TronTrust contract interactions."""
@@ -236,6 +299,7 @@ class TronTrustContracts:
         self._oracle = None
         self._passport = None
         self._commercial = None
+        self._wallet = None
 
         if ORACLE_ADDRESS:
             self._oracle = self._client.get_contract(ORACLE_ADDRESS)
@@ -246,6 +310,9 @@ class TronTrustContracts:
         if COMMERCIAL_ADDRESS:
             self._commercial = self._client.get_contract(COMMERCIAL_ADDRESS)
             self._commercial.abi = COMMERCIAL_ABI
+        if TRUST_WALLET_ADDRESS:
+            self._wallet = self._client.get_contract(TRUST_WALLET_ADDRESS)
+            self._wallet.abi = TRUST_WALLET_ABI
 
         self._ready = bool(self._oracle and self._priv_key)
         if self._ready:
@@ -457,6 +524,59 @@ class TronTrustContracts:
             "paymentWindowDays": result[0],
             "requiresEscrow": result[1],
             "creditLimitUsdt": result[2],
+        }
+
+
+    # ------------------------------------------------------------------
+    # TrustWallet
+    # ------------------------------------------------------------------
+
+    def wallet_send(self, to: str, amount_sun: int) -> str:
+        if not self._wallet or not self._priv_key:
+            return ""
+        txn = (
+            self._wallet.functions.send(to, amount_sun)
+            .with_owner(self._operator)
+            .fee_limit(100_000_000)
+            .build()
+            .sign(self._priv_key)
+        )
+        result = txn.broadcast()
+        return result.get("txid", "")
+
+    def wallet_set_min_trust(self, new_score: int) -> str:
+        if not self._wallet or not self._priv_key:
+            return ""
+        txn = (
+            self._wallet.functions.setMinTrustScore(new_score)
+            .with_owner(self._operator)
+            .fee_limit(50_000_000)
+            .build()
+            .sign(self._priv_key)
+        )
+        result = txn.broadcast()
+        return result.get("txid", "")
+
+    def wallet_check_recipient(self, to: str) -> dict:
+        if not self._wallet:
+            return {"score": 0, "wouldPass": False, "minRequired": 0}
+        result = self._wallet.functions.checkRecipient(to)
+        return {
+            "score": result[0],
+            "wouldPass": result[1],
+            "minRequired": result[2],
+        }
+
+    def wallet_get_stats(self) -> dict:
+        if not self._wallet:
+            return {"transfers": 0, "blocked": 0, "volumeTrx": 0, "currentMinScore": 0, "enforcing": False}
+        result = self._wallet.functions.getStats()
+        return {
+            "transfers": result[0],
+            "blocked": result[1],
+            "volumeTrx": result[2],
+            "currentMinScore": result[3],
+            "enforcing": result[4],
         }
 
 
