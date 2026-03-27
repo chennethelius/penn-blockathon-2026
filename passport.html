@@ -118,7 +118,7 @@
     </ul>
     <div style="display:flex;align-items:center;gap:10px;">
       <button class="theme-toggle" id="themeToggle" title="Toggle day/night mode">🌙</button>
-      <div class="nav-cta-wrap"><button class="nav-cta">Connect TronLink</button></div>
+      <div class="nav-cta-wrap"><button class="nav-cta" id="connectBtn" onclick="connectTronLink()">Connect TronLink</button></div>
     </div>
   </div>
 </nav>
@@ -160,7 +160,31 @@
             <input id="kyaInput" type="text" placeholder="KYA code or wallet address" style="flex:1;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:7px 10px;font-size:11px;font-family:monospace;outline:none;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,0 100%);">
             <div class="btn-wrap"><button onclick="lookupPassport()" class="btn-sm" style="font-size:11px;padding:7px 14px;">Lookup</button></div>
           </div>
-          <div class="p-footer">Non-transferable · transferFrom() reverts on-chain<br>TrustPassport.sol · TronTrustOracle.sol · On-chain SVG</div>
+
+          <!-- Register Agent Section -->
+          <div id="registerSection" style="margin:14px 0 0;padding:14px 0 0;border-top:1px solid var(--border2);">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Register New Agent</div>
+            <div id="registerNotConnected" style="font-size:12px;color:var(--dim);line-height:1.6;">
+              Connect TronLink to register your wallet as a TronTrust agent and mint a soul-bound Passport NFT.
+            </div>
+            <div id="registerForm" style="display:none;flex-direction:column;gap:8px;">
+              <div style="font-size:11px;color:var(--dim);margin-bottom:4px;">
+                Wallet: <span id="regAddr" style="color:var(--text);font-family:monospace;"></span>
+              </div>
+              <select id="regType" style="background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:7px 10px;font-size:11px;outline:none;width:100%;">
+                <option value="DeFi Bot">DeFi Bot</option>
+                <option value="Trading Agent">Trading Agent</option>
+                <option value="Payment Agent">Payment Agent</option>
+                <option value="Lending Agent">Lending Agent</option>
+                <option value="NFT Agent">NFT Agent</option>
+                <option value="Data Agent">Data Agent</option>
+              </select>
+              <div class="btn-wrap" style="width:100%;"><button onclick="registerAgent()" class="btn-sm" id="regBtn" style="width:100%;text-align:center;font-size:11px;padding:7px 14px;">Register on Tron</button></div>
+              <div id="regResult" style="font-size:11px;color:var(--dim);min-height:16px;line-height:1.6;"></div>
+            </div>
+          </div>
+
+          <div class="p-footer" style="margin-top:14px;">Non-transferable · transferFrom() reverts on-chain<br>TrustPassport.sol · TronTrustOracle.sol · On-chain SVG</div>
         </div>
 
         <div class="attest-section">
@@ -292,6 +316,8 @@ POST /api/v1/threat/report
 </footer>
 <script>
   const API_BASE = 'http://localhost:8000/api/v1';
+  const NILE_SCAN = 'https://nile.tronscan.org/#/transaction/';
+  let connectedAddress = null;
 
   function scoreColor(s){ return s>=80?'var(--score-g)':s>=60?'#3b82f6':s>=40?'var(--score-y)':'var(--score-r)'; }
   function verdictLabel(s){ return s>=80?'TRUSTED':s>=60?'REPUTABLE':s>=40?'CAUTION':s>=20?'RISKY':'BLACKLISTED'; }
@@ -322,7 +348,6 @@ POST /api/v1/threat/report
     const val = document.getElementById('kyaInput').value.trim();
     if (!val) return;
     try {
-      // Try KYA code first, then direct address
       const endpoint = val.startsWith('T') ? `${API_BASE}/passport/${val}` : `${API_BASE}/kya/${val}`;
       const [pRes, spRes] = await Promise.all([
         fetch(endpoint, {signal:AbortSignal.timeout(5000)}),
@@ -331,11 +356,107 @@ POST /api/v1/threat/report
       const p = await pRes.json();
       const sp = spRes.ok ? await spRes.json() : null;
       renderPassport(p, sp);
+    } catch(e) {}
+  }
+
+  // ── TronLink Connection ──
+  async function connectTronLink() {
+    const btn = document.getElementById('connectBtn');
+
+    if (window.tronWeb && window.tronWeb.ready) {
+      onConnected(window.tronWeb.defaultAddress.base58);
+      return;
+    }
+
+    if (window.tronLink) {
+      try {
+        const res = await window.tronLink.request({ method: 'tron_requestAccounts' });
+        if (res.code === 200 || window.tronWeb.ready) {
+          // Wait a moment for tronWeb to initialize
+          setTimeout(() => {
+            if (window.tronWeb && window.tronWeb.defaultAddress.base58) {
+              onConnected(window.tronWeb.defaultAddress.base58);
+            }
+          }, 500);
+          return;
+        }
+      } catch(e) {}
+    }
+
+    btn.textContent = 'Install TronLink';
+    btn.onclick = () => window.open('https://www.tronlink.org/', '_blank');
+  }
+
+  function onConnected(address) {
+    connectedAddress = address;
+    const btn = document.getElementById('connectBtn');
+    btn.textContent = address.slice(0,6) + '...' + address.slice(-4);
+    btn.style.background = 'var(--bg3)';
+    btn.style.color = 'var(--score-g)';
+    btn.onclick = null;
+
+    // Show register form
+    document.getElementById('registerNotConnected').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'flex';
+    document.getElementById('regAddr').textContent = address;
+
+    // Auto-lookup passport for connected wallet
+    document.getElementById('kyaInput').value = address;
+    lookupPassport();
+  }
+
+  // ── Agent Registration ──
+  async function registerAgent() {
+    if (!connectedAddress) return;
+
+    const btn = document.getElementById('regBtn');
+    const result = document.getElementById('regResult');
+    const agentType = document.getElementById('regType').value;
+
+    btn.textContent = 'Registering...';
+    btn.disabled = true;
+    result.innerHTML = '';
+
+    try {
+      const res = await fetch(`${API_BASE}/agent/register`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ address: connectedAddress, agentType: agentType }),
+        signal: AbortSignal.timeout(15000),
+      });
+      const data = await res.json();
+
+      if (data.success === false) {
+        result.innerHTML = `<span style="color:var(--score-r)">${data.error || 'Registration failed'}</span>`;
+      } else {
+        const txHash = data.txHash;
+        const txLink = txHash ? `<a href="${NILE_SCAN}${txHash}" target="_blank" style="color:var(--red);text-decoration:underline;">${txHash.slice(0,16)}...</a>` : '';
+        result.innerHTML = `<span style="color:var(--score-g)">Registered! Initial score: 50</span><br>TX: ${txLink}`;
+
+        // Refresh passport card with new on-chain data
+        setTimeout(async () => {
+          document.getElementById('kyaInput').value = connectedAddress;
+          await lookupPassport();
+        }, 2000);
+      }
     } catch(e) {
-      // demo — show as is
+      result.innerHTML = `<span style="color:var(--score-r)">Error: ${e.message}</span>`;
+    } finally {
+      btn.textContent = 'Register on Tron';
+      btn.disabled = false;
     }
   }
 
+  // ── Auto-connect if TronLink already authorized ──
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      if (window.tronWeb && window.tronWeb.ready && window.tronWeb.defaultAddress.base58) {
+        onConnected(window.tronWeb.defaultAddress.base58);
+      }
+    }, 1000);
+  });
+
+  // ── Theme Toggle ──
   const toggle = document.getElementById('themeToggle');
   const saved = localStorage.getItem('trontrust-theme');
   if (saved === 'light') { document.documentElement.setAttribute('data-theme','light'); toggle.textContent = '☀️'; }
