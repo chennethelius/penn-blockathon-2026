@@ -118,7 +118,7 @@
     </ul>
     <div style="display:flex;align-items:center;gap:10px;">
       <button class="theme-toggle" id="themeToggle" title="Toggle day/night mode">🌙</button>
-      <button class="nav-cta">Connect TronLink</button>
+      <div class="nav-cta-wrap"><button class="nav-cta">Connect TronLink</button></div>
     </div>
   </div>
 </nav>
@@ -132,27 +132,35 @@
     <div class="passport-layout">
       <div>
         <div class="passport-card">
-          <div class="p-eyebrow">TrustPassport · TRC-721 · #00142</div>
-          <div class="p-avatar">🤖</div>
-          <div class="p-name">DeFiBot Alpha</div>
-          <div class="p-addr">TGx7f3kM9aKpR2w1...a9Kp</div>
-          <div class="p-scores">
-            <div class="pscore"><div class="pscore-val" style="color:var(--score-g)">88</div><div class="pscore-lbl">Trust Score</div></div>
-            <div class="pscore"><div class="pscore-val" style="color:var(--text)">91</div><div class="pscore-lbl">Commercial</div></div>
+          <div class="p-eyebrow">TrustPassport · TTPAS · Soul-bound NFT</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <div class="p-avatar">🤖</div>
+            <div>
+              <div class="p-name" id="pName">DeFiBot Alpha</div>
+              <div class="p-addr" id="pAddr">TGx7f3kM9aKpR2w1...a9Kp</div>
+            </div>
           </div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+          <div class="p-scores">
+            <div class="pscore"><div class="pscore-val" id="pTrust" style="color:var(--score-g)">88</div><div class="pscore-lbl">Trust Score</div></div>
+            <div class="pscore"><div class="pscore-val" id="pComm" style="color:var(--text)">91</div><div class="pscore-lbl">Commercial</div></div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;" id="pBadges">
             <span class="badge b-green">TRUSTED</span>
             <span class="badge b-dim">DeFi Agent</span>
-            <span class="badge b-dim">☀️ 2,140 pts</span>
+            <span class="badge b-dim" id="pSunBadge">☀️ 2,140 pts</span>
           </div>
           <div class="p-stat-list">
-            <div class="p-stat"><span>Total jobs</span><span>342</span></div>
-            <div class="p-stat"><span>Completion rate</span><span style="color:var(--score-g)">99.1%</span></div>
-            <div class="p-stat"><span>Days active</span><span>127</span></div>
-            <div class="p-stat"><span>JustLend repayment</span><span style="color:var(--score-g)">97%</span></div>
+            <div class="p-stat"><span>Token ID</span><span id="pTokenId">#00142</span></div>
+            <div class="p-stat"><span>Agent type</span><span id="pAgentType">DeFi Agent</span></div>
+            <div class="p-stat"><span>Total jobs</span><span id="pJobs">342</span></div>
+            <div class="p-stat"><span>Sun Points</span><span id="pSun" style="color:var(--score-y)">☀️ 2,140</span></div>
             <div class="p-stat"><span>Net-30 terms</span><span style="color:var(--score-g)">Approved</span></div>
           </div>
-          <div class="p-footer">Non-transferable · Transfer reverts on-chain<br>Nile Testnet · EAS attested · On-chain SVG</div>
+          <div style="margin:14px 0 14px;display:flex;gap:8px;align-items:center;">
+            <input id="kyaInput" type="text" placeholder="KYA code or wallet address" style="flex:1;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:7px 10px;font-size:11px;font-family:monospace;outline:none;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,0 100%);">
+            <div class="btn-wrap"><button onclick="lookupPassport()" class="btn-sm" style="font-size:11px;padding:7px 14px;">Lookup</button></div>
+          </div>
+          <div class="p-footer">Non-transferable · transferFrom() reverts on-chain<br>TrustPassport.sol · TronTrustOracle.sol · On-chain SVG</div>
         </div>
 
         <div class="attest-section">
@@ -206,57 +214,67 @@
 
     <!-- MCP -->
     <div class="mcp-block">
-      <div class="sec-label">MCP Server &amp; SDK</div>
+      <div class="sec-label">REST API · MCP Server · x402</div>
       <h2 class="sec-title">Built for AI agents to use</h2>
-      <p class="sec-sub">An MCP server with 5 tools so any AI agent can check trust, verify tokens, and report outcomes — no web UI needed.</p>
+      <p class="sec-sub">FastAPI backend on port 8000 · Anubis ML engine on port 8001 · Pay-per-call via USDT-TRC20 (x402 protocol).</p>
       <div class="mcp-grid">
         <div class="code-card">
           <div class="code-head">
             <div class="dots"><div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div></div>
-            <div class="code-head-title">mcp_config.json</div>
+            <div class="code-head-title">REST API — trust lookup</div>
             <div></div>
           </div>
-          <pre>{
-  <span class="str">"mcpServers"</span>: {
-    <span class="str">"trontrust"</span>: {
-      <span class="str">"url"</span>: <span class="str">"https://app.trontrust.io/api/mcp"</span>
-    }
-  }
-}</pre>
+          <pre><span class="cm"># Free tier</span>
+GET /api/v1/agent/{address}
+GET /api/v1/agent/{address}/deep
+GET /api/v1/token/{address}
+GET /api/v1/passport/{address}
+GET /api/v1/kya/{code}
+GET /api/v1/sunpoints?address=T...
+POST /api/v1/sunpoints/claim
+
+<span class="cm"># Paid tier (x402 — USDT-TRC20)</span>
+GET /api/x402/trust          <span class="cm"># $0.02</span>
+GET /api/x402/token-check    <span class="cm"># $0.01</span>
+GET /api/x402/reputation     <span class="cm"># $0.03</span>
+POST /api/x402/token-forensics <span class="cm"># $0.05</span>
+POST /api/x402/register-passport <span class="cm"># $1.00</span></pre>
         </div>
         <div class="code-card">
           <div class="code-head">
             <div class="dots"><div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div></div>
-            <div class="code-head-title">guard_example.py</div>
+            <div class="code-head-title">x402 — pay-per-call</div>
             <div></div>
           </div>
-          <pre><span class="kw">from</span> trontrust_guard <span class="kw">import</span> GuardedWallet
+          <pre><span class="cm"># 1. Get payment instructions (402)</span>
+GET /api/x402/trust?address=T...
+<span class="cm"># → 402 Payment Required</span>
+<span class="cm"># → payTo: &lt;treasury&gt;, amount: 0.02 USDT</span>
 
-<span class="cm"># Wrap any tronpy wallet</span>
-wallet = GuardedWallet(
-    private_key=<span class="str">"..."</span>,
-    min_trust_score=<span class="num">60</span>
-)
+<span class="cm"># 2. Send USDT-TRC20 on Tron</span>
+<span class="cm"># → get tx hash</span>
 
-<span class="cm"># Trust-gated — checks before every tx</span>
-wallet.send_usdt(
-    to=<span class="str">"TTargetWallet..."</span>,
-    amount=<span class="num">100</span>
-)
-<span class="cm"># Raises TrustError if score &lt; 60</span></pre>
+<span class="cm"># 3. Retry with payment header</span>
+GET /api/x402/trust?address=T...
+X-Payment: &lt;tx_hash&gt;
+<span class="cm"># → full trust score response</span>
+
+<span class="cm"># Threat report earns Sun Points</span>
+POST /api/v1/threat/report
+<span class="cm"># → sunPointsEarned: 5</span></pre>
         </div>
         <div class="code-card" style="grid-column:1/-1;">
           <div class="code-head">
             <div class="dots"><div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div></div>
-            <div class="code-head-title">MCP Tools (5)</div>
+            <div class="code-head-title">API Endpoints · 8 Routers</div>
             <div></div>
           </div>
           <div class="tool-list">
-            <div class="tool-item"><div class="tool-name">get_agent_trust(address)</div><div class="tool-desc">Returns trust score (0–100), verdict, risk outlook, and score breakdown for any Tron wallet.</div></div>
-            <div class="tool-item"><div class="tool-name">get_token_forensics(token_address)</div><div class="tool-desc">Deep token analysis: rug probability, honeypot detection, liquidity, freeze/mint functions.</div></div>
-            <div class="tool-item"><div class="tool-name">get_agent_reputation(address)</div><div class="tool-desc">Community reviews, sentiment analysis, average rating, and top reviewed interactions.</div></div>
-            <div class="tool-item"><div class="tool-name">report_outcome(query_id, outcome, reporter)</div><div class="tool-desc">Report a job outcome (success/failure/partial/expired). Earns 5 Sun Points and feeds Anubis retraining.</div></div>
-            <div class="tool-item"><div class="tool-name">get_sun_points_balance(address)</div><div class="tool-desc">Returns Sun Points balance, total earned, and current streak for an address.</div></div>
+            <div class="tool-item"><div class="tool-name">GET /api/v1/agent/{address}</div><div class="tool-desc">Trust score (0–100), verdict (TRUSTED/REPUTABLE/CAUTION/RISKY/BLACKLISTED), risk outlook, and Anubis breakdown. Pulls live data from TronGrid.</div></div>
+            <div class="tool-item"><div class="tool-name">GET /api/v1/agent/{address}/deep</div><div class="tool-desc">Deep analysis with Monte Carlo confidence bands (p5/p95), top risk drivers, and historical score timeline.</div></div>
+            <div class="tool-item"><div class="tool-name">GET /api/v1/token/{address}</div><div class="tool-desc">TRC-20 token safety: honeypot probability, rug risk, freeze/mint function detection, bytecode analysis.</div></div>
+            <div class="tool-item"><div class="tool-name">POST /api/v1/threat/report</div><div class="tool-desc">Community threat report. 3 independent reports auto-blacklists on TronTrustOracle.sol. Earns ☀️ +5 Sun Points.</div></div>
+            <div class="tool-item"><div class="tool-name">GET /api/v1/commercial/terms?buyer=&merchant=</div><div class="tool-desc">Recommended payment terms based on CommercialTrust.sol history: Net-30/14/7/prepay, credit limit, escrow flag.</div></div>
           </div>
         </div>
       </div>
@@ -273,6 +291,51 @@ wallet.send_usdt(
   </div>
 </footer>
 <script>
+  const API_BASE = 'http://localhost:8000/api/v1';
+
+  function scoreColor(s){ return s>=80?'var(--score-g)':s>=60?'#3b82f6':s>=40?'var(--score-y)':'var(--score-r)'; }
+  function verdictLabel(s){ return s>=80?'TRUSTED':s>=60?'REPUTABLE':s>=40?'CAUTION':s>=20?'RISKY':'BLACKLISTED'; }
+  function verdictBadge(s){ return s>=80?'b-green':s>=60?'b-dim':s>=40?'b-yellow':'b-red'; }
+
+  function renderPassport(p, sp) {
+    const ts = p.trustScore ?? 50;
+    const cs = p.commercialScore ?? 50;
+    const sun = sp?.balance ?? p.sunPoints ?? 0;
+    document.getElementById('pName').textContent = p.agentType && p.agentType !== 'unregistered' ? p.agentType : (p.address?.slice(0,14)+'…');
+    document.getElementById('pAddr').textContent = p.address || '—';
+    document.getElementById('pTrust').textContent = ts;
+    document.getElementById('pTrust').style.color = scoreColor(ts);
+    document.getElementById('pComm').textContent = cs;
+    document.getElementById('pComm').style.color = scoreColor(cs);
+    document.getElementById('pTokenId').textContent = p.passportId != null ? '#'+String(p.passportId).padStart(5,'0') : '—';
+    document.getElementById('pAgentType').textContent = p.agentType || 'Unknown';
+    document.getElementById('pJobs').textContent = p.totalJobs ?? '—';
+    document.getElementById('pSun').textContent = '☀️ ' + sun;
+    document.getElementById('pSunBadge').textContent = '☀️ ' + sun + ' pts';
+    document.getElementById('pBadges').innerHTML =
+      `<span class="badge ${verdictBadge(ts)}">${verdictLabel(ts)}</span>` +
+      `<span class="badge b-dim">${p.agentType || 'Unknown'}</span>` +
+      `<span class="badge b-dim">☀️ ${sun} pts</span>`;
+  }
+
+  async function lookupPassport() {
+    const val = document.getElementById('kyaInput').value.trim();
+    if (!val) return;
+    try {
+      // Try KYA code first, then direct address
+      const endpoint = val.startsWith('T') ? `${API_BASE}/passport/${val}` : `${API_BASE}/kya/${val}`;
+      const [pRes, spRes] = await Promise.all([
+        fetch(endpoint, {signal:AbortSignal.timeout(5000)}),
+        fetch(`${API_BASE}/sunpoints?address=${val}`, {signal:AbortSignal.timeout(5000)}),
+      ]);
+      const p = await pRes.json();
+      const sp = spRes.ok ? await spRes.json() : null;
+      renderPassport(p, sp);
+    } catch(e) {
+      // demo — show as is
+    }
+  }
+
   const toggle = document.getElementById('themeToggle');
   const saved = localStorage.getItem('trontrust-theme');
   if (saved === 'light') { document.documentElement.setAttribute('data-theme','light'); toggle.textContent = '☀️'; }
@@ -281,6 +344,20 @@ wallet.send_usdt(
     if (isLight) { document.documentElement.removeAttribute('data-theme'); toggle.textContent = '🌙'; localStorage.setItem('trontrust-theme','dark'); }
     else { document.documentElement.setAttribute('data-theme','light'); toggle.textContent = '☀️'; localStorage.setItem('trontrust-theme','light'); }
   });
+</script>
+
+<div id="cursorGlow"></div>
+<div class="page-glow pg-1"></div>
+<div class="page-glow pg-2"></div>
+<div class="page-glow pg-3"></div>
+<script>
+  const glow = document.getElementById('cursorGlow');
+  document.addEventListener('mousemove', e => {
+    glow.style.opacity = '1';
+    glow.style.left = e.clientX + 'px';
+    glow.style.top  = e.clientY + 'px';
+  });
+  document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
 </script>
 </body>
 </html>

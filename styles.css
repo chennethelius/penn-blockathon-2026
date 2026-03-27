@@ -13,9 +13,9 @@
   --border:   rgba(232, 38, 26, 0.18);
   --border2:  rgba(255, 255, 255, 0.07);
   --border3:  rgba(255, 255, 255, 0.04);
-  --text:     #ede8f0;
-  --dim:      #8a7a96;
-  --muted:    #3d2a4a;
+  --text:     #ffffff;
+  --dim:      #e8e2f0;
+  --muted:    #c8bcd8;
   --score-g:  #22c55e;
   --score-y:  #facc15;
   --score-r:  #f87171;
@@ -256,9 +256,9 @@ pre {
   --border:  rgba(232, 38, 26, 0.22);
   --border2: rgba(0, 0, 0, 0.09);
   --border3: rgba(0, 0, 0, 0.06);
-  --text:    #1a0808;
-  --dim:     #7a5252;
-  --muted:   #b89090;
+  --text:    #0d0d0d;
+  --dim:     #1a1a1a;
+  --muted:   #333333;
 
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.1),  0 0 0 1px rgba(255,255,255,0.8) inset;
   --shadow-md: 0 4px 16px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.9) inset;
@@ -321,26 +321,47 @@ pre {
 [data-theme="light"] .passport-card,
 [data-theme="light"] .p-feat,
 [data-theme="light"] .step-card,
-[data-theme="light"] .model-cell {
+[data-theme="light"] .model-cell,
+[data-theme="light"] .stat-box {
   background: rgba(255,255,255,0.82) !important;
   border-color: rgba(0,0,0,0.08) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+[data-theme="light"] .stat-box.critical {
+  border-top-color: var(--red) !important;
+}
+[data-theme="light"] .stat-box.critical::before {
+  background: var(--red);
+}
+[data-theme="light"] .stat-desc { color: var(--muted); }
+
+/* scoring model percentages — calm black in light mode */
+[data-theme="light"] .model-pct { color: var(--text); }
+[data-theme="light"] .model-cell::before { display: none; }
+
+/* step numbers — muted box instead of red */
+[data-theme="light"] .step-num {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.1);
+  color: var(--text);
 }
 [data-theme="light"] .result-top,
 [data-theme="light"] .result-body { border-color: rgba(0,0,0,0.07) !important; }
 
 /* code cards */
 [data-theme="light"] .code-card { background: rgba(250,244,244,0.9); border-color: rgba(0,0,0,0.09); }
-[data-theme="light"] pre { color: #5a3a3a; }
+[data-theme="light"] pre { color: #1a1a1a; }
 [data-theme="light"] .str { color: #b01a0f; }
-[data-theme="light"] .kw  { color: #8b2fc9; }
-[data-theme="light"] .cm  { color: #b89090; }
-[data-theme="light"] .num { color: #b07d00; }
+[data-theme="light"] .kw  { color: #6a1fa8; }
+[data-theme="light"] .cm  { color: #555555; }
+[data-theme="light"] .num { color: #8a6000; }
 
 /* tool items */
 [data-theme="light"] .tool-item { background: rgba(240,230,230,0.7); border-color: rgba(0,0,0,0.07); }
 
 /* chip */
-[data-theme="light"] .chip { background: rgba(255,255,255,0.7); border-color: rgba(0,0,0,0.1); color: var(--dim); }
+[data-theme="light"] .chip { background: rgba(255,255,255,0.7); border-color: rgba(0,0,0,0.1); color: var(--text); }
 [data-theme="light"] .chip:hover { border-color: var(--red); }
 
 /* search input */
@@ -381,6 +402,122 @@ pre {
 
 /* footer */
 [data-theme="light"] footer { background: rgba(245,240,240,0.7); border-top-color: rgba(0,0,0,0.07); }
+
+/* ── ANIMATED BORDER — Connect TronLink ── */
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+.nav-cta-wrap {
+  --border-angle: 0deg;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 0%, transparent 60%,
+    #e8261a 75%, #ff6644 82%, #e8261a 89%,
+    transparent 100%
+  );
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  animation: border-spin 2.2s linear infinite;
+}
+@keyframes border-spin {
+  to { --border-angle: 360deg; }
+}
+/* the button inside resets its own clip so the wrapper shows through */
+.nav-cta-wrap .nav-cta {
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+  display: block; width: 100%;
+}
+
+/* ── GENERIC ANIMATED BORDER WRAPPER (for all red buttons) ── */
+.btn-wrap {
+  --border-angle: 0deg;
+  padding: 1.5px;
+  display: inline-block;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 0%, transparent 60%,
+    #e8261a 75%, #ff6644 82%, #e8261a 89%,
+    transparent 100%
+  );
+  clip-path: polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 11px 100%, 0 calc(100% - 11px));
+  animation: border-spin 2.2s linear infinite;
+}
+.btn-wrap .btn-primary { display: block; }
+.btn-wrap .search-btn  { display: block; }
+.btn-wrap .btn-sm      {
+  display: block;
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+}
+
+/* ── CURSOR GLOW ── */
+#cursorGlow {
+  position: fixed;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle,
+    rgba(200, 22, 12, 0.13) 0%,
+    rgba(160, 15, 8,  0.07) 35%,
+    transparent 65%
+  );
+  filter: blur(4px);
+  transition: left 0.08s ease-out, top 0.08s ease-out;
+  opacity: 0;
+  transition: left 0.08s ease-out, top 0.08s ease-out, opacity 0.4s ease;
+}
+#cursorGlow.visible { opacity: 1; }
+
+/* light mode — softer blush */
+[data-theme="light"] #cursorGlow {
+  background: radial-gradient(circle,
+    rgba(220, 60, 50, 0.07) 0%,
+    rgba(200, 40, 30, 0.03) 40%,
+    transparent 65%
+  );
+}
+
+/* ── FAINT PAGE GLOWS ── */
+.page-glow {
+  position: fixed; border-radius: 50%;
+  pointer-events: none; z-index: 0;
+  filter: blur(100px); opacity: 0;
+  animation: glowPulse 8s ease-in-out infinite;
+}
+.pg-1 {
+  width: 300px; height: 300px;
+  top: 20%; right: 10%;
+  background: radial-gradient(circle, rgba(180,15,8,0.12) 0%, transparent 70%);
+  animation-delay: 0s;
+  opacity: 0.6;
+}
+.pg-2 {
+  width: 240px; height: 240px;
+  bottom: 30%; left: 8%;
+  background: radial-gradient(circle, rgba(160,10,5,0.1) 0%, transparent 70%);
+  animation-delay: -3s;
+  opacity: 0.5;
+}
+.pg-3 {
+  width: 200px; height: 200px;
+  top: 60%; right: 30%;
+  background: radial-gradient(circle, rgba(140,8,4,0.08) 0%, transparent 70%);
+  animation-delay: -5.5s;
+  opacity: 0.4;
+}
+@keyframes glowPulse {
+  0%,100% { transform: scale(1);   opacity: var(--base-op, 0.5); }
+  50%      { transform: scale(1.3); opacity: calc(var(--base-op, 0.5) * 1.6); }
+}
+
+[data-theme="light"] .page-glow { filter: blur(120px); }
+[data-theme="light"] .pg-1 { background: radial-gradient(circle, rgba(220,60,50,0.06) 0%, transparent 70%); }
+[data-theme="light"] .pg-2 { background: radial-gradient(circle, rgba(200,50,40,0.05) 0%, transparent 70%); }
+[data-theme="light"] .pg-3 { background: radial-gradient(circle, rgba(200,50,40,0.04) 0%, transparent 70%); }
 
 /* ── THEME TOGGLE BUTTON ── */
 .theme-toggle {
