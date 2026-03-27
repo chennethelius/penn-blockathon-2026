@@ -255,14 +255,37 @@
 </footer>
 
 <script>
-  function loadDemo(addr,name,score,verdict,type,commSc){ document.getElementById('addrInput').value=addr; showResult(addr,name,score,verdict,type,commSc); }
-  function lookup(){
+  const API_BASE = 'http://localhost:8000/api/v1';
+
+  function loadDemo(addr,name,score,verdict,type,commSc){ document.getElementById('addrInput').value=addr; lookup(); }
+  async function lookup(){
     const addr=document.getElementById('addrInput').value.trim(); if(!addr)return;
-    const d={'TGoodAgent111':['DeFiBot Alpha',88,'TRUSTED','DeFi Agent',91],'TNewWallet444':['NewAgent-1',52,'NEUTRAL','Unknown',0],'TRiskyWallet22':['SuspiciousBot',28,'RISKY','Unknown',0],'TBlacklist333':['ScamBot-X',0,'BLACKLISTED','Malicious',0]};
-    const m=d[addr]; if(m) showResult(addr,...m); else { const s=Math.floor(Math.random()*50)+25; showResult(addr,'Unknown Agent',s,s>60?'NEUTRAL':'CAUTION','Unknown',0); }
+    document.querySelector('.search-btn').textContent='Analyzing...';
+    try {
+      const [trustRes, passportRes] = await Promise.all([
+        fetch(`${API_BASE}/agent/${addr}`).then(r=>r.json()).catch(()=>null),
+        fetch(`${API_BASE}/passport/${addr}`).then(r=>r.json()).catch(()=>null),
+      ]);
+      if(trustRes){
+        const bd = trustRes.breakdown || {};
+        const score = trustRes.trustScore;
+        const verdict = (trustRes.verdict||'unknown').toUpperCase();
+        const agentType = passportRes?.agentType || 'Unknown';
+        const commSc = passportRes?.commercialScore || 0;
+        showResult(addr, agentType, score, verdict, agentType, commSc,
+          bd.behavioral, bd.tokenHealth, bd.community, trustRes.flags || []);
+      } else {
+        showResult(addr,'Unknown Agent',50,'CAUTION','Unknown',0);
+      }
+    } catch(e) {
+      console.error('Lookup failed:',e);
+      showResult(addr,'Unknown Agent',50,'CAUTION','Unknown',0);
+    } finally {
+      document.querySelector('.search-btn').textContent='Analyze →';
+    }
   }
   function clamp(n){return Math.min(100,Math.max(0,n));} function rnd(){return Math.floor(Math.random()*12)-6;}
-  function showResult(addr,name,score,verdict,type,commSc){
+  function showResult(addr,name,score,verdict,type,commSc,behav,tokenH,commR,apiFlags){
     document.getElementById('emptyState').style.display='none';
     const color=score>=70?'#22c55e':score>=45?'#facc15':'#f87171';
     const bCls=score>=70?'b-green':score>=45?'b-yellow':'b-red';
@@ -275,21 +298,29 @@
     document.getElementById('rVerdict').style.color=color;
     const fill=document.getElementById('scFill');
     fill.style.stroke=color; fill.style.strokeDashoffset=251-(score/100)*251;
-    const v=clamp(score+rnd()),m=clamp(score+rnd()),c=clamp(score+rnd());
+    const v=behav!=null?Math.round(behav):clamp(score+rnd()), m=tokenH!=null?Math.round(tokenH):clamp(score+rnd()), c=commR!=null?Math.round(commR):clamp(score+rnd());
     document.getElementById('rBars').innerHTML=`
       <div class="bar-row"><div class="bar-label"><span>On-Chain Behavior (50%)</span><span>${v}</span></div><div class="bar-track"><div class="bar-fill" style="width:${v}%;background:${color}"></div></div></div>
       <div class="bar-row"><div class="bar-label"><span>Anubis ML Engine (30%)</span><span>${m}</span></div><div class="bar-track"><div class="bar-fill" style="width:${m}%;background:${color}"></div></div></div>
       <div class="bar-row"><div class="bar-label"><span>Community Reviews (20%)</span><span>${c}</span></div><div class="bar-track"><div class="bar-fill" style="width:${c}%;background:${color}"></div></div></div>`;
     document.getElementById('rBadges').innerHTML=`<span class="badge ${bCls}">${verdict}</span><span class="badge b-dim">${type}</span>`+(score>=80?'<span class="badge b-dim">net-30 eligible</span>':'')+(score===0?'<span class="badge b-red">⛔ BLACKLISTED</span>':'');
     const flags=[];
-    if(score>=80)flags.push(['#22c55e','JustLend repayment > 90%']);
-    if(score>=70)flags.push(['#22c55e','No wash trading detected']);
-    if(score>=60)flags.push(['#22c55e','Wallet age > 90 days']);
-    if(score<50&&score>0)flags.push(['#facc15','Suspicious transaction velocity']);
-    if(score<40&&score>0)flags.push(['#facc15','Wallet age < 30 days']);
-    if(score<30&&score>0)flags.push(['#f87171','Wash trading detected']);
-    if(score===0)flags.push(['#f87171','3+ community reports filed']);
-    if(score===0)flags.push(['#f87171','Score forced to 0 by Sentinel']);
+    if(apiFlags&&apiFlags.length>0){
+      apiFlags.forEach(f=>{
+        const c=f.includes('honeypot')||f.includes('blacklist')||f.includes('phishing')||f.includes('wash')||f.includes('drain')?'#f87171':
+               f.includes('new_wallet')||f.includes('concentrated')||f.includes('anubis')?'#facc15':'#22c55e';
+        flags.push([c,f.replace(/_/g,' ')]);
+      });
+    } else {
+      if(score>=80)flags.push(['#22c55e','JustLend repayment > 90%']);
+      if(score>=70)flags.push(['#22c55e','No wash trading detected']);
+      if(score>=60)flags.push(['#22c55e','Wallet age > 90 days']);
+      if(score<50&&score>0)flags.push(['#facc15','Suspicious transaction velocity']);
+      if(score<40&&score>0)flags.push(['#facc15','Wallet age < 30 days']);
+      if(score<30&&score>0)flags.push(['#f87171','Wash trading detected']);
+      if(score===0)flags.push(['#f87171','3+ community reports filed']);
+      if(score===0)flags.push(['#f87171','Score forced to 0 by Sentinel']);
+    }
     document.getElementById('rFlags').innerHTML=flags.length?flags.map(([c,t])=>`<div class="flag-item"><div class="flag-dot" style="background:${c}"></div>${t}</div>`).join(''):'<div style="font-size:12px;color:var(--muted)">No flags detected</div>';
     const jl=score>=70?(85+Math.floor(Math.random()*15))+'%':score>=45?(50+Math.floor(Math.random()*30))+'%':'N/A';
     const wa=score>=70?(90+Math.floor(Math.random()*200))+'d':(Math.floor(Math.random()*45))+'d';

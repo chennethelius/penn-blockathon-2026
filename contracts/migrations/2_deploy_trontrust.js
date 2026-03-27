@@ -2,6 +2,7 @@ const TronTrustOracle = artifacts.require("TronTrustOracle");
 const TrustPassport = artifacts.require("TrustPassport");
 const TrustGateContract = artifacts.require("TrustGateContract");
 const CommercialTrust = artifacts.require("CommercialTrust");
+const TrustEscrow = artifacts.require("TrustEscrow");
 
 module.exports = async function (deployer, network, accounts) {
   const operatorAddress = accounts[0]; // deployer doubles as operator for testnet
@@ -26,9 +27,15 @@ module.exports = async function (deployer, network, accounts) {
   const commercial = await CommercialTrust.deployed();
   console.log("CommercialTrust deployed at:", commercial.address);
 
+  // 5. Deploy TrustEscrow (oracle ref, arbiter = deployer, fee recipient = deployer)
+  await deployer.deploy(TrustEscrow, oracle.address, operatorAddress, operatorAddress);
+  const escrow = await TrustEscrow.deployed();
+  console.log("TrustEscrow deployed at:", escrow.address);
+
   console.log("\n--- Deployment Summary ---");
   console.log("Oracle:     ", oracle.address);
   console.log("Passport:   ", passport.address);
   console.log("TrustGate:  ", gate.address);
   console.log("Commercial: ", commercial.address);
+  console.log("Escrow:     ", escrow.address);
 };
