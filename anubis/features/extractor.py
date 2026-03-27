@@ -125,18 +125,18 @@ class TronFeatureExtractor:
             ms_7d  = now - 7  * 86_400_000
 
             total_r, r30_r, r7_r, sample_r = await asyncio.gather(
-                self._ts.get("/transaction", params={
+                self._ts.get("transaction", params={
                     "address": address, "limit": 1, "count": "true",
                 }),
-                self._ts.get("/transaction", params={
+                self._ts.get("transaction", params={
                     "address": address, "limit": 1, "count": "true",
                     "start_timestamp": ms_30d, "end_timestamp": now,
                 }),
-                self._ts.get("/transaction", params={
+                self._ts.get("transaction", params={
                     "address": address, "limit": 1, "count": "true",
                     "start_timestamp": ms_7d, "end_timestamp": now,
                 }),
-                self._ts.get("/transaction", params={
+                self._ts.get("transaction", params={
                     "address": address, "limit": 200, "sort": "-timestamp",
                 }),
                 return_exceptions=True,
@@ -168,7 +168,7 @@ class TronFeatureExtractor:
         """
         try:
             r = await self._ts.get(
-                "/token_trc20/transfers",
+                "token_trc20/transfers",
                 params={
                     "address": address,
                     "limit": 200,
@@ -189,7 +189,7 @@ class TronFeatureExtractor:
         """
         try:
             r = await self._ts.get(
-                "/exchange/transaction",
+                "exchange/transaction",
                 params={
                     "address": address,
                     "limit": 200,
@@ -217,7 +217,7 @@ class TronFeatureExtractor:
             for market_addr in jl_addresses:
                 # Transfers FROM address TO JustLend market = supply/repay
                 r_out = await self._ts.get(
-                    "/token_trc20/transfers",
+                    "token_trc20/transfers",
                     params={
                         "address": address,
                         "toAddress": market_addr,
@@ -227,7 +227,7 @@ class TronFeatureExtractor:
                 )
                 # Transfers FROM JustLend TO address = borrow
                 r_in = await self._ts.get(
-                    "/token_trc20/transfers",
+                    "token_trc20/transfers",
                     params={
                         "address": address,
                         "fromAddress": market_addr,
@@ -259,7 +259,7 @@ class TronFeatureExtractor:
         """TronScan: contracts deployed by this address."""
         try:
             r = await self._ts.get(
-                "/contracts",
+                "contracts",
                 params={"creator": address, "limit": 50, "count": "true"},
             )
             r.raise_for_status()
@@ -274,11 +274,11 @@ class TronFeatureExtractor:
         Endpoint: /api/account/risk  (documented in TronScan API v2)
         """
         try:
-            r = await self._ts.get("/account/risk", params={"address": address})
+            r = await self._ts.get("account/risk", params={"address": address})
             if r.status_code == 200:
                 return r.json()
             # Fallback: check account tags
-            r2 = await self._ts.get("/accountv2", params={"address": address})
+            r2 = await self._ts.get("accountv2", params={"address": address})
             if r2.status_code == 200:
                 return {"tags": r2.json().get("tags", [])}
             return {}
@@ -521,3 +521,372 @@ class TronFeatureExtractor:
         fv.outgoing_tx_diversity_score = min(len(out_set) / total, 1.0)
         fv.circular_payment_ratio      = min(len(in_set & out_set) / max(len(out_set), 1), 1.0)
         fv.payment_graph_centrality    = min((len(in_set) + len(out_set)) / 1000.0, 1.0)
+
+    # ------------------------------------------------------------------
+    # Token-centric extraction
+    # ------------------------------------------------------------------
+
+    async def extract_token(self, token_address: str) -> AgentFeatureVector:
+        """
+        Token-centric feature extraction for TRC-20 contract addresses.
+        Populates all 50 features:
+          - TOKEN HEALTH (25-39): from token contract metadata, holder distribution,
+            liquidity/DEX data, and ABI function flags.
+          - BEHAVIORAL (0-24): from the token contract's own transaction patterns
+            AND from the deployer wallet's history (whichever yields more signal).
+          - NETWORK/THREAT (40-49): from contract/deployer network patterns.
+
+        This is the primary path when training on token data.
+        """
+        fv = AgentFeatureVector(address=token_address)
+
+        # Fetch token-specific data in parallel
+        token_info, holders_data, contract_data, dex_data, risk_data = await asyncio.gather(
+            self._fetch_token_info(token_address),
+            self._fetch_token_holders(token_address),
+            self._fetch_token_contract(token_address),
+            self._fetch_token_dex(token_address),
+            self._fetch_tronscan_risk(token_address),
+            return_exceptions=True,
+        )
+
+        self._apply_token_info(fv, token_info)
+        self._apply_token_holders(fv, holders_data)
+        self._apply_token_contract(fv, contract_data)
+        self._apply_token_dex(fv, dex_data)
+        self._apply_risk_flags(fv, risk_data)
+
+        # Use deployer wallet for behavioral features if we can find it
+        deployer = None
+        if not isinstance(contract_data, Exception) and contract_data:
+            deployer = (
+                contract_data.get("creator")
+                or contract_data.get("ownerAddress")
+                or contract_data.get("owner_address")
+            )
+
+        behavioral_address = deployer if deployer else token_address
+
+        account_data, tx_stats, trc20_transfers, dex_trades, jl_data = await asyncio.gather(
+            self._fetch_account(behavioral_address),
+            self._fetch_tx_stats(behavioral_address),
+            self._fetch_trc20_transfers(behavioral_address),
+            self._fetch_dex_trades(behavioral_address),
+            self._fetch_justlend_via_tronscan(behavioral_address),
+            return_exceptions=True,
+        )
+
+        self._apply_account(fv, account_data)
+        self._apply_tx_stats(fv, tx_stats)
+        self._apply_trc20_transfers(fv, trc20_transfers)
+        self._apply_dex_trades(fv, dex_trades)
+        self._apply_justlend(fv, jl_data)
+        self._compute_network_features(fv, tx_stats)
+
+        fv.clamp()
+        return fv
+
+    # ------------------------------------------------------------------
+    # Token-specific fetchers
+    # ------------------------------------------------------------------
+
+    async def _fetch_token_info(self, token_address: str) -> dict:
+        """
+        TronScan: TRC-20 token metadata.
+        Returns holder count, issue time, name, symbol, total supply.
+        """
+        try:
+            r = await self._ts.get(
+                "token_trc20",
+                params={"contract": token_address, "showAll": 1},
+            )
+            if r.status_code == 200:
+                data = r.json()
+                # TronScan wraps results in trc20_tokens list
+                tokens = data.get("trc20_tokens") or data.get("data", [])
+                if isinstance(tokens, list) and tokens:
+                    return tokens[0]
+                if isinstance(data, dict) and data.get("contractAddress"):
+                    return data
+            return {}
+        except Exception as e:
+            logger.warning("token info failed %s: %s", token_address, e)
+            return {}
+
+    async def _fetch_token_holders(self, token_address: str) -> dict:
+        """
+        TronScan: top-10 token holders for concentration analysis.
+        Also returns total holder count as a cross-check.
+        """
+        try:
+            r = await self._ts.get(
+                "tokenholders",
+                params={
+                    "address": token_address,
+                    "limit": 10,
+                },
+            )
+            if r.status_code == 200:
+                return r.json()
+            return {}
+        except Exception as e:
+            logger.warning("token holders failed %s: %s", token_address, e)
+            return {}
+
+    async def _fetch_token_contract(self, token_address: str) -> dict:
+        """
+        TronScan: contract metadata.
+        Returns creator, verified status, and ABI (for function flag detection).
+        """
+        try:
+            r = await self._ts.get(
+                "contracts",
+                params={"contract": token_address, "limit": 1},
+            )
+            if r.status_code == 200:
+                data = r.json()
+                contracts = data.get("data", [])
+                return contracts[0] if contracts else {}
+            return {}
+        except Exception as e:
+            logger.warning("contract info failed %s: %s", token_address, e)
+            return {}
+
+    async def _fetch_token_dex(self, token_address: str) -> dict:
+        """
+        TronScan: DEX/market data for the token.
+        Returns liquidity, 24h volume, price, and exchange listing count.
+        """
+        try:
+            # Token market stats from TronScan
+            r = await self._ts.get(
+                "token/market",
+                params={"contract": token_address},
+            )
+            market_data: dict = {}
+            if r.status_code == 200:
+                market_data = r.json()
+
+            # Fallback: exchange listings count
+            r2 = await self._ts.get(
+                "exchange",
+                params={"token": token_address, "limit": 20, "count": "true"},
+            )
+            exchange_count = 0
+            if r2.status_code == 200:
+                exchange_count = r2.json().get("total", 0)
+
+            market_data["dex_listing_count"] = exchange_count
+            return market_data
+        except Exception as e:
+            logger.warning("token dex data failed %s: %s", token_address, e)
+            return {}
+
+    # ------------------------------------------------------------------
+    # Token-specific appliers
+    # ------------------------------------------------------------------
+
+    def _apply_token_info(self, fv: AgentFeatureVector, data):
+        if not data or isinstance(data, Exception):
+            return
+
+        # Holder count — try multiple field names TronScan uses
+        holder_count = (
+            data.get("holders_count")
+            or data.get("holders")
+            or data.get("holder_count")
+            or data.get("holdersCount")
+            or 0
+        )
+        try:
+            fv.token_holder_count = float(holder_count)
+        except (ValueError, TypeError):
+            pass
+
+        # Token age from issue/creation time
+        issue_time = (
+            data.get("issue_time")
+            or data.get("issueTime")
+            or data.get("dateCreated")
+            or data.get("date_created")
+        )
+        if issue_time:
+            try:
+                # TronScan returns ms timestamps or ISO date strings
+                if isinstance(issue_time, (int, float)) and issue_time > 1e10:
+                    age_days = (
+                        datetime.now(timezone.utc).timestamp() * 1000 - float(issue_time)
+                    ) / 86_400_000
+                elif isinstance(issue_time, str) and "-" in issue_time:
+                    from datetime import datetime as dt
+                    issued = dt.strptime(issue_time[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                    age_days = (datetime.now(timezone.utc) - issued).days
+                else:
+                    age_days = 0.0
+                fv.token_age_days = max(age_days, 0.0)
+            except Exception:
+                pass
+
+        # Total supply — use as a proxy for token diversity (not a direct feature,
+        # but high supply with few holders → concentration signal)
+        total_supply = data.get("total_supply") or data.get("totalSupply") or 0
+        try:
+            fv._token_total_supply = float(str(total_supply).replace(",", "")) or 1.0
+        except (ValueError, TypeError, AttributeError):
+            fv._token_total_supply = 1.0  # type: ignore[attr-defined]
+
+    def _apply_token_holders(self, fv: AgentFeatureVector, data):
+        if not data or isinstance(data, Exception):
+            return
+
+        holders = data.get("data") or data.get("trc20_holders") or []
+        total_from_api = data.get("total") or data.get("holderCount") or 0
+
+        # Override holder count if more accurate value available
+        if total_from_api:
+            fv.token_holder_count = max(fv.token_holder_count, float(total_from_api))
+
+        if not holders:
+            return
+
+        total_supply = getattr(fv, "_token_total_supply", 1.0) or 1.0  # type: ignore[attr-defined]
+
+        # Compute top-10 concentration
+        top10_balance = 0.0
+        for h in holders[:10]:
+            bal = h.get("balance") or h.get("quantity") or 0
+            try:
+                top10_balance += float(str(bal).replace(",", ""))
+            except (ValueError, TypeError):
+                pass
+
+        if total_supply > 0 and top10_balance > 0:
+            fv.top10_holder_concentration = min(top10_balance / total_supply, 1.0)
+
+    def _apply_token_contract(self, fv: AgentFeatureVector, data):
+        """
+        Extract ABI function flags and verification status.
+        TronScan includes ABI JSON for verified contracts — we scan it for
+        freeze, mint, blacklist, and max-tx function signatures.
+        """
+        if not data or isinstance(data, Exception):
+            return
+
+        # Verified = at least community-audited
+        verify_status = data.get("verify_status") or 0
+        verified = data.get("verified") or data.get("isVerify") or verify_status >= 1
+        if verified:
+            fv.audit_score = max(fv.audit_score, min(float(verify_status), 2.0) if verify_status else 1.0)
+
+        # Pull holder count + issue time from trc20token nested object
+        trc20 = data.get("trc20token") or {}
+        if trc20:
+            holders = trc20.get("holders_count") or 0
+            try:
+                holders = float(holders)
+                if holders > fv.token_holder_count:
+                    fv.token_holder_count = holders
+            except (ValueError, TypeError):
+                pass
+
+            issue_time = trc20.get("issue_time", "")
+            if issue_time and fv.token_age_days == 0.0:
+                from datetime import datetime as _dt
+                try:
+                    issued = _dt.strptime(issue_time[:19], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+                    fv.token_age_days = max((datetime.now(timezone.utc) - issued).days, 0.0)
+                except Exception:
+                    pass
+
+            # Derive top10 concentration heuristic when tokenholders endpoint fails:
+            # more holders = less likely to be concentrated
+            if fv.top10_holder_concentration == 1.0 and fv.token_holder_count > 0:
+                h = fv.token_holder_count
+                if h > 1_000_000:
+                    fv.top10_holder_concentration = 0.15
+                elif h > 100_000:
+                    fv.top10_holder_concentration = 0.25
+                elif h > 10_000:
+                    fv.top10_holder_concentration = 0.40
+                elif h > 1_000:
+                    fv.top10_holder_concentration = 0.55
+                elif h > 100:
+                    fv.top10_holder_concentration = 0.70
+                else:
+                    fv.top10_holder_concentration = 0.90
+
+        # Scan ABI for dangerous function signatures
+        abi_raw = data.get("abi") or data.get("abiCode") or ""
+        if isinstance(abi_raw, str) and abi_raw.strip().startswith("["):
+            try:
+                import json as _json
+                abi = _json.loads(abi_raw)
+                fn_names = {
+                    (fn.get("name") or "").lower()
+                    for fn in abi
+                    if fn.get("type") in ("function", None)
+                }
+                if any("freeze" in n or "lock" in n for n in fn_names):
+                    fv.freeze_function_present = 1.0
+                if any("mint" in n or "issue" in n for n in fn_names):
+                    fv.mint_function_present = 1.0
+                if any("blacklist" in n or "ban" in n or "block" in n for n in fn_names):
+                    fv.blacklist_function_present = 1.0
+                if any("maxtx" in n or "maxamount" in n or "limit" in n for n in fn_names):
+                    fv.max_transaction_limit_present = 1.0
+                # Owner renounce: look for zero-address owner or renounce function
+                if any("renounce" in n or "renouncedowner" in n for n in fn_names):
+                    # Presence of renounce function + not a freeze token = likely renounced
+                    fv.owner_renounced = 0.5  # partial signal; will be confirmed by ownership check
+            except Exception:
+                pass
+
+        # Tag-based signals (TronScan applies tags to known-bad contracts)
+        tags = data.get("tags") or []
+        tag_names = {(t.get("tagName") or t.get("name") or "").lower() for t in tags}
+        if any("honeypot" in t or "scam" in t or "fake" in t for t in tag_names):
+            fv.honeypot_probability = max(fv.honeypot_probability, 0.85)
+        if any("phish" in t for t in tag_names):
+            fv.phishing_contract_association_score = max(
+                fv.phishing_contract_association_score, 0.9
+            )
+
+    def _apply_token_dex(self, fv: AgentFeatureVector, data):
+        if not data or isinstance(data, Exception):
+            return
+
+        # Liquidity (USD)
+        liquidity = (
+            data.get("liquidity")
+            or data.get("liquidityUsd")
+            or data.get("totalLiquidity")
+            or 0
+        )
+        try:
+            fv.token_liquidity_usd = float(liquidity)
+        except (ValueError, TypeError):
+            pass
+
+        # Volume / liquidity ratio
+        volume_24h = data.get("volume24h") or data.get("volume") or 0
+        try:
+            vol = float(volume_24h)
+            liq = fv.token_liquidity_usd
+            if liq > 0:
+                fv.volume_to_liquidity_ratio = min(vol / liq, 50.0)
+        except (ValueError, TypeError):
+            pass
+
+        # Price volatility proxy: use 24h price change %
+        price_change = data.get("priceChange") or data.get("price_change_24h") or 0
+        try:
+            fv.price_volatility_7d = min(abs(float(price_change)) * 100, 100.0)
+        except (ValueError, TypeError):
+            pass
+
+        # DEX listings count
+        listing_count = data.get("dex_listing_count") or data.get("exchangeCount") or 0
+        try:
+            fv.dex_listings_count = float(listing_count)
+        except (ValueError, TypeError):
+            pass
