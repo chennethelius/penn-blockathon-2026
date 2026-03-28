@@ -152,6 +152,25 @@ async def list_tools() -> list[Tool]:
             },
         ),
         Tool(
+            name="deploy_agent",
+            description="Deploy a brand new AI agent onto the Tron blockchain. Generates a real Tron keypair, registers the agent on the TronTrust Oracle, sets initial trust score to 50, and mints a soul-bound TrustPassport NFT. Returns the new agent's address and transaction hashes. No existing address needed — the system creates one.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Human-readable name for the agent (e.g. 'JudgeBot', 'My Trading Agent')",
+                    },
+                    "agent_type": {
+                        "type": "string",
+                        "enum": ["trading", "defi", "payments", "data", "governance", "custom"],
+                        "description": "Type of agent to deploy",
+                    },
+                },
+                "required": ["name", "agent_type"],
+            },
+        ),
+        Tool(
             name="trust_send",
             description="Send TRX from the TrustWallet to a recipient. The wallet enforces trust checks on-chain — if the recipient's trust score is below the minimum threshold, the transaction is blocked by the smart contract. Also runs Anubis ML risk check for wash trading, phishing, and sybil patterns.",
             inputSchema={
@@ -273,6 +292,25 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 type="text",
                 text=json.dumps(result, indent=2),
             )]
+
+        elif name == "deploy_agent":
+            result = await _api_post("/arena/create-agent", {
+                "name": arguments["name"],
+                "agentType": arguments["agent_type"],
+            })
+            if result.get("success"):
+                summary = (
+                    f"Agent '{result['name']}' deployed successfully!\n\n"
+                    f"Address: {result['address']}\n"
+                    f"Type: {result['agentType']}\n"
+                    f"Initial Trust Score: {result['score']}\n"
+                    f"Oracle TX: {result.get('oracleTxHash', 'N/A')}\n"
+                    f"Passport NFT TX: {result.get('passportTxHash', 'N/A')}\n"
+                    f"\nView on TronScan: https://nile.tronscan.org/#/address/{result['address']}"
+                )
+            else:
+                summary = f"Deployment failed: {result.get('error', 'unknown error')}"
+            return [TextContent(type="text", text=summary)]
 
         elif name == "trust_send":
             result = await _api_post("/wallet/send", {

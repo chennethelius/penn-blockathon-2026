@@ -18,20 +18,27 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 from app.services.contracts import get_contracts
 
-AGENTS = [
+# These 6 agents are the Arena demo agents — same addresses used in
+# backend/app/routers/arena.py ARENA_AGENTS. Scores chosen for a good demo
+# narrative: high → low spread lets judges see approve/block at various thresholds.
+ARENA_AGENTS = [
     # (address, agentType, trustScore, verdict)
-    # Using real Tron mainnet addresses so TronGrid has data for them
-    ("TX5ug3U97zsLdaNTfS5d89WJXTbvthjYPq", "DeFi Bot", 72, "REPUTABLE"),
-    ("TLyqzVGLV1srkB7dToTAEqgDSfPtXRJZYH", "Trading Agent", 85, "TRUSTED"),
-    ("TTcYhypP8m4phDhN6oRexz2174zAFJ254R", "Payment Bot", 91, "TRUSTED"),
-    ("TGzz8gjYiYRqpfmDwnLxfCAEQPhLaBb1gL", "Yield Optimizer", 67, "REPUTABLE"),
-    ("THPvaUhoh2Qn2y9THCZML3H4ABSMYu2vLR", "Data Agent", 54, "CAUTION"),
-    ("TN3W4H6rK2ce4vX9YnFQHwKENnHjoxb3m9", "Lending Agent", 43, "CAUTION"),
-    ("TPYmHEhy5n8TCEfYGqW2rPxsghSfzghPDn", "NFT Agent", 38, "RISKY"),
-    ("TKcEU8ekq2ZoFzLSGFYCUY6aocJBX9X31b", "Bridge Bot", 25, "RISKY"),
-    ("TAUN6FwrnwwmaEqYcckffC7wYmbaS6cBiX", "Spam Bot", 12, "RISKY"),
-    ("TFbXDcD9Yf2G9Q5T2kS3MFCK9VNq1PTP8G", "Scam Agent", 0, "BLACKLISTED"),
+    # Scores match what's on the Oracle (already seeded)
+    ("TLyqzVGLV1srkB7dToTAEqgDSfPtXRJZYH", "Coinbase Pay", 85, "TRUSTED"),
+    ("TX5ug3U97zsLdaNTfS5d89WJXTbvthjYPq", "Aave Lend", 72, "REPUTABLE"),
+    ("TN3W4H6rK2ce4vX9YnFQHwKENnHjoxb3m9", "Stripe Agent", 43, "CAUTION"),
+    ("TAUN6FwrnwwmaEqYcckffC7wYmbaS6cBiX", "Delve", 12, "RISKY"),
 ]
+
+# Extra agents for the dashboard/passport pages (not shown in Arena)
+EXTRA_AGENTS = [
+    ("TN3gScUTZC3mejw33P3KyBK72jQomptdy1", "Payment Bot", 91, "TRUSTED"),
+    ("TG3CaDhonPJJM1Tuf5N3k5gBYXJBVfbqGS", "Data Agent", 54, "CAUTION"),
+    ("TPYmHEhy5n8TCEfYGqW2rPxsghSfzghPDn", "NFT Agent", 38, "RISKY"),
+    ("TLND31wtzojkFTJttnid36ZGiLMJ7Gk5S1", "Scam Agent", 0, "BLACKLISTED"),
+]
+
+AGENTS = ARENA_AGENTS + EXTRA_AGENTS
 
 
 def main():

@@ -165,8 +165,8 @@
     <ul class="nav-links">
       <li><a href="index.html" class="active">Home</a></li>
       <li><a href="dashboard.html">Lookup</a></li>
-      <li><a href="sentinel.html">Sentinel</a></li>
       <li><a href="passport.html">Passport</a></li>
+      <li><a href="arena.html">Arena</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:10px;">
       <button class="theme-toggle" id="themeToggle" title="Toggle day/night mode">🌙</button>
@@ -522,7 +522,9 @@
   })();
 
   // ── Try It Live ──
-  const API = 'http://localhost:8000/api/v1';
+  const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000/api/v1'
+    : window.location.origin + '/api/v1';
   const SCAN = 'https://nile.tronscan.org/#/transaction/';
 
   function scoreColor(s){ return s>=80?'#22c55e':s>=60?'#3b82f6':s>=40?'#facc15':'#f87171'; }

@@ -113,8 +113,8 @@
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="dashboard.html">Lookup</a></li>
-      <li><a href="sentinel.html">Sentinel</a></li>
       <li><a href="passport.html" class="active">Passport</a></li>
+      <li><a href="arena.html">Arena</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:10px;">
       <button class="theme-toggle" id="themeToggle" title="Toggle day/night mode">🌙</button>
@@ -310,12 +310,14 @@ POST /api/v1/threat/report
   <div class="container">
     <div class="footer-inner">
       <div class="footer-copy">© 2026 TronTrust · PennBlockathon 2026</div>
-      <div class="footer-links"><a href="index.html">Home</a><a href="dashboard.html">Lookup</a><a href="sentinel.html">Sentinel</a></div>
+      <div class="footer-links"><a href="index.html">Home</a><a href="dashboard.html">Lookup</a><a href="arena.html">Arena</a></div>
     </div>
   </div>
 </footer>
 <script>
-  const API_BASE = 'http://localhost:8000/api/v1';
+  const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000/api/v1'
+    : window.location.origin + '/api/v1';
   const NILE_SCAN = 'https://nile.tronscan.org/#/transaction/';
   let connectedAddress = null;
 
