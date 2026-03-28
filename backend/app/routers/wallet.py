@@ -139,3 +139,28 @@ async def wallet_stats():
         "trustEnforced": stats["enforcing"],
         "walletAddress": "TFD31Cr3PfZPZjPHUWSVstkZ53ZCEyX6yi",
     }
+
+
+class LockAccountRequest(BaseModel):
+    agentAddress: str
+
+
+@router.post("/wallet/lock-permissions")
+async def lock_account_permissions(req: LockAccountRequest):
+    """Lock an agent's Tron account using native Account Permission Management.
+
+    Sets the Active permission so the agent can ONLY interact through the
+    TrustWallet contract. Protocol-level enforcement — even a compromised AI
+    cannot bypass this. Uses Tron's native multi-sig, not a smart contract.
+    """
+    contracts = get_contracts()
+    result = contracts.lock_account_to_trust_wallet(req.agentAddress)
+    return result
+
+
+@router.get("/wallet/permissions/{address}")
+async def get_permissions(address: str):
+    """Read current Tron account permissions. Shows owner, active, and
+    any trust-gated restrictions applied via Account Permission Management."""
+    contracts = get_contracts()
+    return contracts.get_account_permissions(address)

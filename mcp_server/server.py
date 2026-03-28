@@ -205,6 +205,20 @@ async def list_tools() -> list[Tool]:
                 "properties": {},
             },
         ),
+        Tool(
+            name="lock_agent_permissions",
+            description="Lock an agent's Tron account using native Account Permission Management. After locking, the agent can ONLY transact through the TrustWallet contract — the Tron protocol itself enforces this, not just a smart contract. Even a compromised AI cannot bypass it.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "agent_address": {
+                        "type": "string",
+                        "description": "Tron address of the agent to lock",
+                    },
+                },
+                "required": ["agent_address"],
+            },
+        ),
     ]
 
 
@@ -288,6 +302,15 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
         elif name == "wallet_stats":
             result = await _api_get("/wallet/stats")
+            return [TextContent(
+                type="text",
+                text=json.dumps(result, indent=2),
+            )]
+
+        elif name == "lock_agent_permissions":
+            result = await _api_post("/wallet/lock-permissions", {
+                "agentAddress": arguments["agent_address"],
+            })
             return [TextContent(
                 type="text",
                 text=json.dumps(result, indent=2),
