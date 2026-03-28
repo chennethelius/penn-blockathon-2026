@@ -215,7 +215,7 @@
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="dashboard.html" class="active">Lookup</a></li>
-      <li><a href="sentinel.html">Sentinel</a></li>
+      <li><a href="arena.html">Arena</a></li>
       <li><a href="passport.html">Passport</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:10px;">
@@ -348,13 +348,15 @@
   <div class="container">
     <div class="footer-inner">
       <div class="footer-copy">© 2026 Kairos · PennBlockathon 2026</div>
-      <div class="footer-links"><a href="index.html">Home</a><a href="sentinel.html">Sentinel</a><a href="passport.html">Passport</a></div>
+      <div class="footer-links"><a href="index.html">Home</a><a href="passport.html">Passport</a><a href="arena.html">Arena</a></div>
     </div>
   </div>
 </footer>
 
 <script>
-  const API       = 'http://localhost:8000/api/v1';
+  const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000/api/v1'
+    : window.location.origin + '/api/v1';
   const ANUBIS    = 'http://localhost:8001';
   let currentTab  = 'agent';
 

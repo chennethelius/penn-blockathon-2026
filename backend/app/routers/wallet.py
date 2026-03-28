@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from app.services.contracts import get_contracts
 from app.services import anubis_client
+from app.routers.arena import log_event
 
 router = APIRouter()
 
@@ -37,6 +38,7 @@ async def wallet_send(req: WalletSendRequest):
     blocked_flags = risk_flags & DENY_FLAGS
 
     if blocked_flags:
+        log_event("blocked", f"TrustWallet → {req.to[:8]}... blocked by ML: {', '.join(blocked_flags)}", "", "api")
         return {
             "success": False,
             "error": f"Recipient blocked by ML risk check: {', '.join(blocked_flags)}",
@@ -49,6 +51,7 @@ async def wallet_send(req: WalletSendRequest):
     check = contracts.wallet_check_recipient(req.to)
 
     if not check["wouldPass"]:
+        log_event("blocked", f"TrustWallet → {req.to[:8]}... blocked: score {check['score']} < min {check['minRequired']}", "", "api")
         return {
             "success": False,
             "error": f"Recipient trust score {check['score']} is below minimum {check['minRequired']}",
@@ -61,6 +64,14 @@ async def wallet_send(req: WalletSendRequest):
     try:
         amount_sun = int(req.amountTrx * 1_000_000)
         tx_hash = contracts.wallet_send(req.to, amount_sun)
+        if not tx_hash:
+            return {
+                "success": False,
+                "error": "TrustWallet out of TRX. Fund TFD31Cr3PfZPZjPHUWSVstkZ53ZCEyX6yi via Nile faucet.",
+                "recipientScore": check["score"],
+                "txHash": "",
+            }
+        log_event("approved", f"TrustWallet → {req.to[:8]}... sent {req.amountTrx} TRX (score {check['score']})", tx_hash, "api")
         return {
             "success": True,
             "txHash": tx_hash,
@@ -73,8 +84,14 @@ async def wallet_send(req: WalletSendRequest):
         if "trust score too low" in error_msg.lower():
             return {
                 "success": False,
-                "error": f"Contract rejected: recipient trust score below threshold",
+                "error": "Contract rejected: recipient trust score below threshold",
                 "recipientScore": check["score"],
+                "txHash": "",
+            }
+        if "balance" in error_msg.lower() or "insufficient" in error_msg.lower():
+            return {
+                "success": False,
+                "error": "TrustWallet out of TRX. Fund TFD31Cr3PfZPZjPHUWSVstkZ53ZCEyX6yi via Nile faucet.",
                 "txHash": "",
             }
         return {
@@ -93,6 +110,7 @@ async def set_min_trust(req: SetMinTrustRequest):
     contracts = get_contracts()
     try:
         tx_hash = contracts.wallet_set_min_trust(req.newScore)
+        log_event("info", f"Min trust threshold updated to {req.newScore}", tx_hash, "api")
         return {
             "success": True,
             "txHash": tx_hash,
@@ -139,3 +157,28 @@ async def wallet_stats():
         "trustEnforced": stats["enforcing"],
         "walletAddress": "TFD31Cr3PfZPZjPHUWSVstkZ53ZCEyX6yi",
     }
+
+
+class LockAccountRequest(BaseModel):
+    agentAddress: str
+
+
+@router.post("/wallet/lock-permissions")
+async def lock_account_permissions(req: LockAccountRequest):
+    """Lock an agent's Tron account using native Account Permission Management.
+
+    Sets the Active permission so the agent can ONLY interact through the
+    TrustWallet contract. Protocol-level enforcement — even a compromised AI
+    cannot bypass this. Uses Tron's native multi-sig, not a smart contract.
+    """
+    contracts = get_contracts()
+    result = contracts.lock_account_to_trust_wallet(req.agentAddress)
+    return result
+
+
+@router.get("/wallet/permissions/{address}")
+async def get_permissions(address: str):
+    """Read current Tron account permissions. Shows owner, active, and
+    any trust-gated restrictions applied via Account Permission Management."""
+    contracts = get_contracts()
+    return contracts.get_account_permissions(address)

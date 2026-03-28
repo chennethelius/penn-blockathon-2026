@@ -152,6 +152,25 @@ async def list_tools() -> list[Tool]:
             },
         ),
         Tool(
+            name="deploy_agent",
+            description="Deploy a brand new AI agent onto the Tron blockchain. Generates a real Tron keypair, registers the agent on the TronTrust Oracle, sets initial trust score to 50, and mints a soul-bound TrustPassport NFT. Returns the new agent's address and transaction hashes. No existing address needed — the system creates one.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Human-readable name for the agent (e.g. 'JudgeBot', 'My Trading Agent')",
+                    },
+                    "agent_type": {
+                        "type": "string",
+                        "enum": ["trading", "defi", "payments", "data", "governance", "custom"],
+                        "description": "Type of agent to deploy",
+                    },
+                },
+                "required": ["name", "agent_type"],
+            },
+        ),
+        Tool(
             name="trust_send",
             description="Send TRX from the TrustWallet to a recipient. The wallet enforces trust checks on-chain — if the recipient's trust score is below the minimum threshold, the transaction is blocked by the smart contract. Also runs Anubis ML risk check for wash trading, phishing, and sybil patterns.",
             inputSchema={
@@ -203,6 +222,20 @@ async def list_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {},
+            },
+        ),
+        Tool(
+            name="lock_agent_permissions",
+            description="Lock an agent's Tron account using native Account Permission Management. After locking, the agent can ONLY transact through the TrustWallet contract — the Tron protocol itself enforces this, not just a smart contract. Even a compromised AI cannot bypass it.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "agent_address": {
+                        "type": "string",
+                        "description": "Tron address of the agent to lock",
+                    },
+                },
+                "required": ["agent_address"],
             },
         ),
     ]
@@ -260,6 +293,25 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 text=json.dumps(result, indent=2),
             )]
 
+        elif name == "deploy_agent":
+            result = await _api_post("/arena/create-agent", {
+                "name": arguments["name"],
+                "agentType": arguments["agent_type"],
+            })
+            if result.get("success"):
+                summary = (
+                    f"Agent '{result['name']}' deployed successfully!\n\n"
+                    f"Address: {result['address']}\n"
+                    f"Type: {result['agentType']}\n"
+                    f"Initial Trust Score: {result['score']}\n"
+                    f"Oracle TX: {result.get('oracleTxHash', 'N/A')}\n"
+                    f"Passport NFT TX: {result.get('passportTxHash', 'N/A')}\n"
+                    f"\nView on TronScan: https://nile.tronscan.org/#/address/{result['address']}"
+                )
+            else:
+                summary = f"Deployment failed: {result.get('error', 'unknown error')}"
+            return [TextContent(type="text", text=summary)]
+
         elif name == "trust_send":
             result = await _api_post("/wallet/send", {
                 "to": arguments["to"],
@@ -288,6 +340,15 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
         elif name == "wallet_stats":
             result = await _api_get("/wallet/stats")
+            return [TextContent(
+                type="text",
+                text=json.dumps(result, indent=2),
+            )]
+
+        elif name == "lock_agent_permissions":
+            result = await _api_post("/wallet/lock-permissions", {
+                "agentAddress": arguments["agent_address"],
+            })
             return [TextContent(
                 type="text",
                 text=json.dumps(result, indent=2),

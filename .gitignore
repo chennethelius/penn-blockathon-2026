@@ -13,3 +13,4 @@ anubis/models/*.json
 anubis/models/*.pkl
 .venv/
 venv/
+arena_agents.json
