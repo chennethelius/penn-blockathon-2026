@@ -125,31 +125,43 @@
 
 <div class="page-wrap">
   <div class="container">
-    <!-- MCP CONNECTION (primary content) -->
-    <div class="sec-label">MCP Server · 12 Tools</div>
-    <h1 style="font-size:clamp(26px,4vw,42px);font-weight:900;letter-spacing:-0.03em;margin-bottom:8px;">Connect any AI agent to Kairos</h1>
-    <p style="font-size:15px;color:var(--dim);margin-bottom:0;">One config line. Claude, GPT, or any MCP-compatible agent can deploy wallets, send trust-gated payments, and manage policies on Tron.</p>
 
-    <div style="margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-      <div class="code-card" style="grid-column:1/-1;">
-        <div class="code-head">
-          <div class="dots"><div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div></div>
-          <div class="code-head-title">Quick Start — add to your MCP config</div>
-          <div></div>
-        </div>
-        <pre><span class="cm">// claude_desktop_config.json or .cursor/mcp.json</span>
-{
+    <!-- NPX HERO -->
+    <div style="text-align:center;padding:20px 0 48px;">
+      <div class="sec-label">Install</div>
+      <h1 style="font-size:clamp(28px,4.5vw,48px);font-weight:900;letter-spacing:-0.03em;margin-bottom:12px;">npx <span style="color:var(--red);">kairos-xyz-mcp</span></h1>
+      <p style="font-size:15px;color:var(--dim);margin-bottom:28px;max-width:460px;margin-left:auto;margin-right:auto;">One line. No Python, no API keys, no setup. Connects any MCP-compatible agent to Tron trust infrastructure.</p>
+      <div style="max-width:440px;margin:0 auto;">
+        <div class="code-card">
+          <div class="code-head">
+            <div class="dots"><div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div></div>
+            <div class="code-head-title">claude_desktop_config.json</div>
+            <div></div>
+          </div>
+          <pre style="text-align:left;">{
   <span class="str">"mcpServers"</span>: {
     <span class="str">"kairos"</span>: {
       <span class="str">"command"</span>: <span class="str">"npx"</span>,
       <span class="str">"args"</span>: [<span class="str">"-y"</span>, <span class="str">"kairos-xyz-mcp"</span>]
     }
   }
-}
-
-<span class="cm">// That's it. No Python, no setup. 8 tools available instantly.</span>
-<span class="cm">// npm: https://www.npmjs.com/package/kairos-xyz-mcp</span></pre>
+}</pre>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:12px;">
+          <a href="https://www.npmjs.com/package/kairos-xyz-mcp" target="_blank" style="color:var(--red);text-decoration:none;font-weight:700;">npm</a> ·
+          <a href="https://github.com/chennethelius/penn-blockathon-2026" target="_blank" style="color:var(--red);text-decoration:none;font-weight:700;">GitHub</a> ·
+          8 tools · Claude, Cursor, Windsurf, or any MCP client
+        </p>
       </div>
+    </div>
+
+    <!-- MCP TOOLS -->
+    <div style="border-top:1px solid var(--border2);padding-top:48px;">
+    <div class="sec-label">MCP Server · 12 Tools</div>
+    <h2 class="sec-title" style="margin-bottom:8px;">What your agent can do</h2>
+    <p style="font-size:14px;color:var(--dim);margin-bottom:24px;">Deploy wallets, send trust-gated payments, and manage policies on Tron — all through natural language.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
       <div class="code-card">
         <div class="code-head">
           <div class="dots"><div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div></div>
