@@ -14,3 +14,4 @@ anubis/models/*.pkl
 .venv/
 venv/
 arena_agents.json
+.vercel
