@@ -112,10 +112,11 @@ nav {
 }
 .nav-logo-text em  { color: var(--red); font-style: normal; }
 .nav-logo-text span { color: var(--text); }
-.nav-links { display: flex; gap: 4px; list-style: none; }
+.nav-links { display: flex; gap: 8px; list-style: none; }
 .nav-links a {
   color: var(--dim); text-decoration: none; font-size: 13px; font-weight: 500;
-  padding: 7px 14px; border-radius: 3px; transition: color 0.15s, background 0.15s;
+  padding: 7px 20px; border-radius: 3px; transition: color 0.15s, background 0.15s;
+  letter-spacing: 0.01em;
 }
 .nav-links a:hover  { color: var(--text); background: rgba(255,255,255,0.05); }
 .nav-links a.active { color: var(--red);  background: rgba(232,38,26,0.1); }
@@ -167,8 +168,8 @@ nav {
 /* ── SECTIONS ── */
 section { padding: 80px 0; border-top: 1px solid var(--border3); }
 .sec-label {
-  font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--red); margin-bottom: 10px;
+  font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--red); margin-bottom: 12px;
 }
 .sec-title {
   font-size: clamp(24px, 3.5vw, 40px); font-weight: 800;
@@ -402,6 +403,23 @@ pre {
 
 /* footer */
 [data-theme="light"] footer { background: rgba(245,240,240,0.7); border-top-color: rgba(0,0,0,0.07); }
+
+/* problem cards & chart cards */
+[data-theme="light"] .problem-card {
+  background: #ffffff !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+[data-theme="light"] .problem-card-label { color: #0d0d0d !important; }
+[data-theme="light"] .problem-card-desc  { color: #444444 !important; }
+
+[data-theme="light"] .chart-card {
+  background: #ffffff !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+[data-theme="light"] .chart-card-title { color: #0d0d0d !important; }
+[data-theme="light"] .chart-card-sub   { color: #666666 !important; }
 
 /* ── ANIMATED BORDER — Connect TronLink ── */
 @property --border-angle {

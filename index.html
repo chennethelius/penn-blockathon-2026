@@ -3,32 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TronTrust — Trust Layer for the Tron Agent Economy</title>
+  <title>Kairos — The Trust Layer for TRON</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     /* ── HERO ── */
     .hero {
-      padding: 148px 0 100px; position: relative; overflow: hidden; border-top: none;
+      padding: 160px 0 100px; position: relative; overflow: hidden;
     }
-    .hero-glow-top {
-      position: absolute; top: -140px; left: 50%; transform: translateX(-50%);
-      width: 900px; height: 600px; pointer-events: none;
-      background: radial-gradient(ellipse at 50% 15%, rgba(232,38,26,0.13) 0%, transparent 60%);
-    }
-    .hero-glow-side {
-      position: absolute; top: 0; left: -200px; width: 500px; height: 100%;
-      background: radial-gradient(ellipse at 0% 50%, rgba(232,38,26,0.05) 0%, transparent 65%);
-      pointer-events: none;
-    }
-    /* geometric line accent */
     .hero-line {
       position: absolute; top: 0; left: 0; right: 0; height: 2px;
       background: linear-gradient(90deg, transparent 0%, var(--red) 30%, transparent 100%);
     }
+    .hero-glow {
+      position: absolute; top: -140px; left: 50%; transform: translateX(-50%);
+      width: 1000px; height: 700px; pointer-events: none;
+      background: radial-gradient(ellipse at 50% 15%, rgba(232,38,26,0.15) 0%, transparent 60%);
+    }
     .hero-eyebrow {
       display: inline-flex; align-items: center; gap: 8px;
-      font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--red); margin-bottom: 26px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--red); margin-bottom: 28px;
       border: 1px solid var(--border); padding: 6px 14px;
       clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
       background: rgba(232,38,26,0.06);
@@ -38,121 +33,215 @@
       border-radius: 50%; animation: pulse 2s infinite;
     }
     h1 {
-      font-size: clamp(38px, 5.8vw, 70px); font-weight: 900;
-      letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 22px;
+      font-size: clamp(46px, 7vw, 84px); font-weight: 900;
+      letter-spacing: -0.04em; line-height: 1.0; margin-bottom: 24px;
     }
     h1 .hl { color: var(--red); }
     .hero-sub {
-      font-size: clamp(15px, 1.8vw, 18px); color: var(--dim);
-      max-width: 540px; line-height: 1.7; margin-bottom: 42px;
+      font-size: clamp(15px, 1.6vw, 18px); color: var(--dim);
+      max-width: 420px; line-height: 1.55; margin-bottom: 44px;
     }
     .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
 
-    /* ── STATS BAR (like tron.network) ── */
+    /* ── STATS BAR — flush under hero ── */
     .stats-bar {
-      background: rgba(13,2,18,0.6);
+      background: rgba(13,2,18,0.7);
       backdrop-filter: blur(12px);
       border-top: 1px solid rgba(255,255,255,0.07);
       border-bottom: 1px solid rgba(255,255,255,0.05);
-      box-shadow: 0 1px 0 rgba(232,38,26,0.1);
-      margin-top: 80px;
+      box-shadow: 0 1px 0 rgba(232,38,26,0.12);
     }
     .stats-bar-inner {
       display: flex; max-width: 1100px; margin: 0 auto; padding: 0 28px;
     }
     .stat-cell {
-      flex: 1; padding: 24px 20px; text-align: center;
+      flex: 1; padding: 26px 20px; text-align: center;
       border-right: 1px solid var(--border);
     }
     .stat-cell:last-child { border-right: none; }
-    .stat-num { font-size: 26px; font-weight: 900; letter-spacing: -0.02em; color: var(--text); }
-    .stat-lbl { font-size: 11px; color: var(--dim); margin-top: 4px; letter-spacing: 0.04em; }
+    .stat-num {
+      font-size: clamp(26px, 3vw, 38px); font-weight: 900;
+      letter-spacing: -0.03em; color: var(--text); line-height: 1;
+    }
+    .stat-lbl {
+      font-size: 10px; color: var(--muted); margin-top: 6px;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
     @media (max-width: 700px) {
       .stats-bar-inner { flex-wrap: wrap; }
       .stat-cell { flex: 1 1 50%; border-right: none; border-bottom: 1px solid var(--border); }
     }
 
-    /* ── SCORING MODEL ── */
-    .model-grid {
-      display: grid; grid-template-columns: repeat(3,1fr);
-      gap: 1px; background: var(--border2);
-      border: 1px solid var(--border); margin-top: 40px;
+    /* ── PROBLEM STATS ── */
+    .problem-strip {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      margin-top: 48px; border-top: 1px solid var(--border2);
     }
-    @media (max-width: 720px) { .model-grid { grid-template-columns: 1fr; } }
-    .model-cell {
-      background: rgba(13,2,18,0.75); padding: 32px;
-      position: relative; transition: background 0.2s;
-      backdrop-filter: blur(8px);
+    @media (max-width: 720px) { .problem-strip { grid-template-columns: 1fr; } }
+    .pstat {
+      padding: 44px 0 44px 36px;
+      border-right: 1px solid var(--border2);
+      position: relative;
     }
-    .model-cell::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, var(--red), transparent);
+    .pstat:last-child { border-right: none; }
+    .pstat-tag {
+      font-size: 14px; font-weight: 800; letter-spacing: 0.04em;
+      color: var(--red); margin-bottom: 10px;
     }
-    .model-cell:hover { background: var(--bg3); }
-    .model-pct {
-      font-size: 52px; font-weight: 900; letter-spacing: -0.03em; line-height: 1;
-      color: var(--text);
+    .pstat-context {
+      font-size: 13px; font-weight: 400; color: var(--muted);
+      line-height: 1.45; margin-bottom: 10px; max-width: 210px;
     }
-    .model-name { font-size: 15px; font-weight: 800; margin: 12px 0 8px; }
-    .model-desc { font-size: 13px; color: var(--dim); line-height: 1.65; }
-    .model-list { list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 6px; }
-    .model-list li {
-      font-size: 12px; color: var(--muted); padding-left: 16px; position: relative;
+    .pstat-num {
+      font-size: clamp(56px, 6vw, 76px); font-weight: 900;
+      letter-spacing: -0.04em; line-height: 1;
+      color: var(--text); display: block;
     }
-    .model-list li::before { content: '›'; position: absolute; left: 0; color: var(--red); font-size: 14px; line-height: 1.4; }
+    .pstat-source {
+      font-size: 10px; color: rgba(200,188,216,0.4); margin-top: 12px;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
 
-    /* ── HOW IT WORKS ── */
-    .steps-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 40px; }
-    @media (max-width: 720px) { .steps-grid { grid-template-columns: 1fr; } }
-    .step-card {
-      background: rgba(13,2,18,0.7); border: 1px solid rgba(255,255,255,0.07);
-      padding: 28px; position: relative;
-      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
-      box-shadow: var(--shadow-md);
-      backdrop-filter: blur(10px);
-      transition: border-color 0.2s, box-shadow 0.2s;
+    /* ── PROOF CHART ── */
+    .proof-section {
+      display: grid; grid-template-columns: 1fr 1.4fr; gap: 64px;
+      align-items: center; margin-top: 72px;
+      padding-top: 56px; border-top: 1px solid var(--border2);
     }
-    .step-card:hover { border-color: rgba(232,38,26,0.22); box-shadow: var(--shadow-lg); }
-    .step-num {
-      width: 34px; height: 34px;
-      background: rgba(232,38,26,0.1); border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 900; color: var(--text); margin-bottom: 18px;
-      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    @media (max-width: 800px) { .proof-section { grid-template-columns: 1fr; } }
+    .proof-text .proof-headline {
+      font-size: clamp(24px, 3vw, 36px); font-weight: 900;
+      letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 14px;
     }
-    .step-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
-    .step-desc { font-size: 13px; color: var(--dim); line-height: 1.65; }
+    .proof-text p {
+      font-size: 13px; color: var(--muted); line-height: 1.75; margin-bottom: 0;
+    }
+    .chart-wrap { position: relative; height: 300px; }
+
+    /* ── HOW IT WORKS + SCORING MODEL ── */
+    .engine-grid {
+      display: grid; grid-template-columns: 55fr 45fr; gap: 64px;
+      align-items: start; margin-top: 48px;
+    }
+    @media (max-width: 860px) { .engine-grid { grid-template-columns: 1fr; } }
+
+    /* steps */
+    .steps-list { display: flex; flex-direction: column; }
+    .step-row {
+      display: flex; gap: 20px; padding: 28px 0;
+      border-bottom: 1px solid var(--border2);
+    }
+    .step-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .step-n {
+      font-size: 28px; font-weight: 900; letter-spacing: -0.04em;
+      color: rgba(255,255,255,0.7); line-height: 1.1; flex-shrink: 0; width: 42px;
+    }
+    [data-theme="light"] .step-n { color: rgba(0,0,0,0.7); }
+    .step-body { flex: 1; }
+    .step-title { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
+    .step-desc { font-size: 12px; color: var(--muted); line-height: 1.65; }
+    .verdicts { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+    .verdict-pill {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.05em;
+      padding: 3px 9px; border-radius: 2px;
+    }
+    .vp-g { background: rgba(34,197,94,0.12); color: #22c55e; }
+    .vp-b { background: rgba(59,130,246,0.12); color: #3b82f6; }
+    .vp-y { background: rgba(250,204,21,0.12); color: #facc15; }
+    .vp-r { background: rgba(248,113,113,0.12); color: #f87171; }
+    .vp-x { background: rgba(232,38,26,0.12); color: var(--red); }
+
+    /* scoring model — open, no boxes */
+    .score-stack { display: flex; flex-direction: column; border-top: 1px solid var(--border2); }
+    .score-cell {
+      padding: 28px 0;
+      border-bottom: 1px solid var(--border2);
+    }
+    .score-cell:last-child { border-bottom: none; }
+    .score-top { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; }
+    .score-pct { font-size: 40px; font-weight: 900; letter-spacing: -0.04em; color: var(--text); line-height: 1; }
+    .score-name { font-size: 13px; font-weight: 800; color: var(--dim); }
+    .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .chip-sm {
+      font-size: 10px; color: var(--muted); padding: 3px 8px;
+      border: 1px solid var(--border2); border-radius: 2px; white-space: nowrap;
+    }
+    .chip-more { color: var(--red); border-color: rgba(232,38,26,0.2); }
+
+    /* ── x402 BAND ── */
+    .x402-band {
+      border-top: 1px solid var(--border2);
+      border-bottom: 1px solid var(--border2);
+      background: rgba(232,38,26,0.03);
+      padding: 28px 0;
+    }
+    .x402-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 28px;
+      display: flex; align-items: center; justify-content: space-between; gap: 24px;
+      flex-wrap: wrap;
+    }
+    .x402-label {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.14em; color: var(--red);
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .x402-text {
+      font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.4;
+    }
+    .x402-text span { color: var(--muted); font-weight: 400; }
 
     /* ── CTA ── */
     .cta-section {
-      padding: 100px 0; text-align: center;
-      position: relative; overflow: hidden; border-top: 1px solid var(--border2);
+      padding: 120px 0; text-align: center; position: relative; overflow: hidden;
+      border-top: 1px solid var(--border2);
     }
     .cta-glow {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      width: 700px; height: 400px; pointer-events: none;
-      background: radial-gradient(ellipse, rgba(232,38,26,0.08) 0%, transparent 65%);
+      width: 800px; height: 500px; pointer-events: none;
+      background: radial-gradient(ellipse, rgba(232,38,26,0.09) 0%, transparent 65%);
     }
     .cta-title {
-      font-size: clamp(28px,4.5vw,54px); font-weight: 900;
-      letter-spacing: -0.03em; margin-bottom: 16px; position: relative;
+      font-size: clamp(36px, 5.5vw, 68px); font-weight: 900;
+      letter-spacing: -0.04em; line-height: 1.0; margin-bottom: 18px; position: relative;
     }
-    .cta-sub { font-size: 16px; color: var(--dim); margin-bottom: 40px; position: relative; }
+    .cta-sub {
+      font-size: 15px; color: var(--muted); margin-bottom: 48px;
+      position: relative; max-width: 380px; margin-left: auto; margin-right: auto;
+      line-height: 1.6;
+    }
     .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; }
+
+    /* ── FADE-UP ── */
+    .fade-up {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: none; }
+    .fade-up.d1 { transition-delay: 0.1s; }
+    .fade-up.d2 { transition-delay: 0.2s; }
+
+    /* ── LIGHT MODE ── */
+    [data-theme="light"] .pstat-num { color: #0d0d0d; }
+    [data-theme="light"] .pstat-context { color: #555; }
+    [data-theme="light"] .pstat-source { color: rgba(0,0,0,0.3); }
+    [data-theme="light"] .problem-strip { border-top-color: rgba(0,0,0,0.1); }
+    [data-theme="light"] .pstat { border-right-color: rgba(0,0,0,0.1); }
+    [data-theme="light"] .proof-section { border-top-color: rgba(0,0,0,0.1); }
+    [data-theme="light"] .proof-text .proof-headline { color: #0d0d0d; }
+    [data-theme="light"] .score-stack { border-top-color: rgba(0,0,0,0.1); }
+    [data-theme="light"] .score-cell { border-bottom-color: rgba(0,0,0,0.1); }
+    [data-theme="light"] .score-pct { color: #0d0d0d; }
+    [data-theme="light"] .x402-band { background: rgba(0,0,0,0.02); }
   </style>
 </head>
 <body>
 <div class="ambient-bg">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
+  <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
 </div>
 
 <nav>
   <div class="nav-inner">
     <a class="nav-logo" href="index.html">
-      <!-- TRON-inspired geometric logo -->
-      <svg class="tron-logo-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg class="tron-logo-svg" viewBox="0 0 32 32" fill="none">
         <polygon points="16,2 30,10 30,22 16,30 2,22 2,10" fill="rgba(232,38,26,0.15)" stroke="#e8261a" stroke-width="1.2"/>
         <polygon points="16,6 26,12 26,20 16,26 6,20 6,12" fill="rgba(232,38,26,0.2)"/>
         <polygon points="16,10 22,14 22,20 16,24 10,20 10,14" fill="#e8261a"/>
@@ -160,7 +249,7 @@
         <line x1="30" y1="10" x2="22" y2="14" stroke="#e8261a" stroke-width="1"/>
         <line x1="30" y1="22" x2="22" y2="20" stroke="#e8261a" stroke-width="1"/>
       </svg>
-      <div class="nav-logo-text"><em>TRON</em><span>Trust</span></div>
+      <div class="nav-logo-text"><em>KAI</em><span>ROS</span></div>
     </a>
     <ul class="nav-links">
       <li><a href="index.html" class="active">Home</a></li>
@@ -175,19 +264,15 @@
   </div>
 </nav>
 
-<!-- HERO -->
+<!-- ① HERO -->
 <section class="hero">
   <canvas id="heroCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
   <div class="hero-line"></div>
-  <div class="hero-glow-top"></div>
-  <div class="hero-glow-side"></div>
+  <div class="hero-glow"></div>
   <div class="container" style="position:relative;z-index:1;">
     <div class="hero-eyebrow">PennBlockathon 2026 · Nile Testnet</div>
-    <h1>The trust layer for<br>the <span class="hl">Tron agent economy.</span></h1>
-    <p class="hero-sub">
-      TronTrust scores every wallet on Tron — AI agents, smart contracts, and businesses —
-      using on-chain behavior, ML risk analysis, and community reputation.
-    </p>
+    <h1>Score any wallet.<br><span class="hl">Block bad actors.</span></h1>
+    <p class="hero-sub">Kairos is the trust layer TRON never had — for AI agents, DeFi, and B2B commerce.</p>
     <div class="hero-btns">
       <div class="btn-wrap"><a href="dashboard.html" class="btn-primary">Check an Agent →</a></div>
       <a href="passport.html" class="btn-outline">MCP Integration</a>
@@ -195,147 +280,182 @@
   </div>
 </section>
 
-<!-- STATS BAR -->
+<!-- ② STATS BAR — flush -->
 <div class="stats-bar">
   <div class="stats-bar-inner">
     <div class="stat-cell">
-      <div class="stat-num">50</div>
-      <div class="stat-lbl">Tron-Native ML Features</div>
+      <div class="stat-num" data-countup="7.9" data-prefix="$" data-suffix="T" data-decimals="1">$7.9T</div>
+      <div class="stat-lbl">Annual USDT-TRC20 Volume</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-num">5</div>
-      <div class="stat-lbl">Verdict Bands (Oracle)</div>
+      <div class="stat-num" data-countup="58" data-suffix="%">58%</div>
+      <div class="stat-lbl">of All Illicit Crypto on TRON</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-num">6</div>
-      <div class="stat-lbl">Tron-Specific Threats</div>
+      <div class="stat-num" data-countup="10" data-suffix="M+">10M+</div>
+      <div class="stat-lbl">Daily Transactions</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-num">x402</div>
-      <div class="stat-lbl">Pay-Per-Call via USDT</div>
+      <div class="stat-num" data-countup="47" data-prefix="$" data-suffix="B">$47B</div>
+      <div class="stat-lbl">AI Agent Market by 2030</div>
     </div>
   </div>
 </div>
 
-<!-- SCORING MODEL -->
+<!-- ③ THE PROBLEM -->
 <section>
   <div class="container">
-    <div class="sec-label">Scoring Model</div>
-    <h2 class="sec-title">Three signals. One score.</h2>
-    <p class="sec-sub">Every TronTrust score is a weighted composite — built entirely from Tron-native data sources.</p>
-    <div class="model-grid">
-      <div class="model-cell">
-        <div class="model-pct">50%</div>
-        <div class="model-name">On-Chain Behavior</div>
-        <div class="model-desc">25 Tron-native signals from TronGrid, JustLend, and SunSwap.</div>
-        <ul class="model-list">
-          <li>JustLend repayment rate (strongest signal)</li>
-          <li>SunSwap wash-trading detection</li>
-          <li>USDT-TRC20 transfer graph analysis</li>
-          <li>Energy drain pattern detection</li>
-          <li>Smart contract audit status</li>
-        </ul>
+    <div class="sec-label">The Problem</div>
+    <h2 class="sec-title">TRON's dominance has made it<br>the #1 target for bad actors.</h2>
+    <p style="font-size:16px;color:var(--dim);max-width:580px;line-height:1.6;margin-top:16px;">
+      TRON is the world's largest stablecoin network — 75% of all global USDT flows through it.
+      That scale and speed attracts fraud, phishing, and scams at an unprecedented rate.
+      <strong style="color:var(--text);">Here's what that looks like in practice:</strong>
+    </p>
+
+    <div class="problem-strip" style="margin-top:32px;border-top:2px solid var(--red);">
+      <div class="pstat fade-up">
+        <div class="pstat-tag">⚠ Energy Drain Attacks</div>
+        <div class="pstat-context">in wallets put at risk — silently hijacked, no warning</div>
+        <span class="pstat-num" data-countup="31.5" data-prefix="$" data-suffix="M" data-decimals="1">$31.5M</span>
+        <div class="pstat-source">14,545 wallets · Q4 2024</div>
       </div>
-      <div class="model-cell">
-        <div class="model-pct">30%</div>
-        <div class="model-name">Anubis ML Engine</div>
-        <div class="model-desc">XGBoost trained on 50 Tron-native features with Monte Carlo confidence bands.</div>
-        <ul class="model-list">
-          <li>Rug probability prediction</li>
-          <li>Token health (15 features)</li>
-          <li>Network &amp; threat signals (10 features)</li>
-          <li>Monte Carlo p5/p95 confidence bands</li>
-          <li>Retrained on reported outcomes</li>
-        </ul>
+      <div class="pstat fade-up d1">
+        <div class="pstat-tag">⚠ Impersonation Scams</div>
+        <div class="pstat-context">year-over-year growth — fake USDT, address poisoning</div>
+        <span class="pstat-num" data-countup="1400" data-prefix="+" data-suffix="%" data-integer="true">+1,400%</span>
+        <div class="pstat-source">Chainalysis · 2026</div>
       </div>
-      <div class="model-cell">
-        <div class="model-pct">20%</div>
-        <div class="model-name">Community Reviews</div>
-        <div class="model-desc">Peer reputation with Claude AI quality filtering and Sun Points incentives.</div>
-        <ul class="model-list">
-          <li>Claude API spam &amp; quality filter</li>
-          <li>5 Sun Points per outcome report</li>
-          <li>3 reports → auto-blacklist</li>
-          <li>Collective Immunity across Guard users</li>
-        </ul>
+      <div class="pstat fade-up d2">
+        <div class="pstat-tag">⚠ Illicit Activity Share</div>
+        <div class="pstat-context">of all illicit crypto globally flows through TRON</div>
+        <span class="pstat-num" data-countup="58" data-suffix="%">58%</span>
+        <div class="pstat-source">Chainalysis · 2024</div>
+      </div>
+    </div>
+
+    <!-- proof: text + chart side by side, no box -->
+    <div class="proof-section">
+      <div class="proof-text fade-up">
+        <div class="proof-headline">Bad actors have chosen TRON as their primary target.</div>
+        <p>TRON's speed, near-zero fees, and massive liquidity make it the best payment rail ever built. Those same properties make it attractive to bad actors. The data shows where the threat is concentrated — and why TRON needs a purpose-built trust layer more than any other chain.</p>
+      </div>
+      <div class="fade-up d1">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Illicit Crypto Activity by Chain · 2024</div>
+        <div style="font-size:10px;color:rgba(200,188,216,0.4);margin-bottom:20px;letter-spacing:0.04em;">Source: Chainalysis 2025 Crypto Crime Report</div>
+        <div class="chart-wrap"><canvas id="chartIllicit"></canvas></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- HOW IT WORKS -->
+<!-- ④ HOW IT WORKS + SCORING MODEL -->
 <section>
   <div class="container">
-    <div class="sec-label">How It Works</div>
-    <h2 class="sec-title">From wallet to verdict in seconds.</h2>
-    <div class="steps-grid">
-      <div class="step-card">
-        <div class="step-num">01</div>
-        <div class="step-title">Submit an address</div>
-        <div class="step-desc">Paste any Tron wallet into the lookup tool or call the REST API or MCP server directly from your agent.</div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">02</div>
-        <div class="step-title">Anubis scores it</div>
-        <div class="step-desc">The ML engine fetches 50 Tron-native features, runs XGBoost, and returns a score with Monte Carlo confidence bands.</div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">03</div>
-        <div class="step-title">Act on the verdict</div>
-        <div class="step-desc">Five bands from the Oracle: <span style="color:var(--score-g);font-weight:700;">TRUSTED</span> · <span style="color:#3b82f6;font-weight:700;">REPUTABLE</span> · <span style="color:var(--score-y);font-weight:700;">CAUTION</span> · <span style="color:var(--score-r);font-weight:700;">RISKY</span> · <span style="color:var(--red);font-weight:700;">BLACKLISTED</span>. The TrustGateContract auto-blocks untrusted wallets before any transaction is signed.</div>
-      </div>
-    </div>
-  </div>
-</section>
+    <div class="sec-label">The Solution</div>
+    <h2 class="sec-title">This is where Kairos comes in.</h2>
 
-<!-- x402 PAY-PER-CALL API -->
-<section>
-  <div class="container">
-    <div class="sec-label">x402 Protocol</div>
-    <h2 class="sec-title">Pay-per-call via USDT-TRC20.</h2>
-    <p class="sec-sub">No API keys. No subscriptions. Send USDT on Tron, get a response. Built on the x402 HTTP payment standard.</p>
-    <div class="model-grid" style="margin-top:32px;">
-      <div class="model-cell" style="padding:24px;">
-        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--muted);margin-bottom:16px;text-transform:uppercase;">Endpoint</div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;"><span style="font-family:monospace;color:var(--dim);">GET /api/x402/trust</span><span style="font-weight:900;color:var(--score-y);">$0.02</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;"><span style="font-family:monospace;color:var(--dim);">GET /api/x402/token-check</span><span style="font-weight:900;color:var(--score-y);">$0.01</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;"><span style="font-family:monospace;color:var(--dim);">GET /api/x402/reputation</span><span style="font-weight:900;color:var(--score-y);">$0.03</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;"><span style="font-family:monospace;color:var(--dim);">POST /api/x402/token-forensics</span><span style="font-weight:900;color:var(--score-y);">$0.05</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;"><span style="font-family:monospace;color:var(--dim);">POST /api/x402/register-passport</span><span style="font-weight:900;color:var(--score-y);">$1.00</span></div>
+    <div class="engine-grid">
+      <!-- LEFT: steps -->
+      <div class="steps-list">
+        <div class="step-row fade-up">
+          <div class="step-n">01</div>
+          <div class="step-body">
+            <div class="step-title">Submit any address</div>
+            <div class="step-desc">REST API, MCP server, or the lookup UI. Any Tron wallet, any time.</div>
+          </div>
+        </div>
+        <div class="step-row fade-up d1">
+          <div class="step-n">02</div>
+          <div class="step-body">
+            <div class="step-title">Anubis scores it</div>
+            <div class="step-desc">XGBoost runs 50 Tron-native features in milliseconds and returns a score with Monte Carlo confidence bands.</div>
+          </div>
+        </div>
+        <div class="step-row fade-up d2">
+          <div class="step-n">03</div>
+          <div class="step-body">
+            <div class="step-title">Act on the verdict</div>
+            <div class="step-desc">TrustGate auto-blocks untrusted wallets before any transaction is signed.</div>
+            <div class="verdicts">
+              <span class="verdict-pill vp-g">TRUSTED</span>
+              <span class="verdict-pill vp-b">REPUTABLE</span>
+              <span class="verdict-pill vp-y">CAUTION</span>
+              <span class="verdict-pill vp-r">RISKY</span>
+              <span class="verdict-pill vp-x">BLACKLISTED</span>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="model-cell" style="padding:24px;">
-        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--muted);margin-bottom:16px;text-transform:uppercase;">How it works</div>
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div style="display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--dim);"><span style="color:var(--red);font-weight:900;flex-shrink:0;">01</span>Call any x402 endpoint — receive a 402 with payment instructions</div>
-          <div style="display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--dim);"><span style="color:var(--red);font-weight:900;flex-shrink:0;">02</span>Send the exact USDT amount to the treasury address on Tron</div>
-          <div style="display:flex;gap:12px;align-items:flex-start;font-size:13px;color:var(--dim);"><span style="color:var(--red);font-weight:900;flex-shrink:0;">03</span>Retry with <span style="font-family:monospace;margin:0 4px;">X-Payment: &lt;tx_hash&gt;</span> header — get full response</div>
+
+      <!-- RIGHT: scoring model -->
+      <div class="score-stack fade-up">
+        <div class="score-cell">
+          <div class="score-top">
+            <div class="score-pct">50%</div>
+            <div class="score-name">On-Chain Behavior</div>
+          </div>
+          <div class="chips">
+            <span class="chip-sm">JustLend repayment</span>
+            <span class="chip-sm">Wash trading</span>
+            <span class="chip-sm">USDT graph</span>
+            <span class="chip-sm">Energy patterns</span>
+            <span class="chip-sm chip-more">+21 signals</span>
+          </div>
         </div>
-      </div>
-      <div class="model-cell" style="padding:24px;">
-        <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--muted);margin-bottom:16px;text-transform:uppercase;">Sun Points Incentives</div>
-        <ul class="model-list">
-          <li>+5 pts per confirmed threat report</li>
-          <li>+2 pts per daily login (streak multiplier)</li>
-          <li>+5 pts per outcome report that improves Anubis</li>
-          <li>Score updates flow back to TrustPassport.sol on-chain</li>
-          <li>Non-transferable · earned, not bought</li>
-        </ul>
+        <div class="score-cell">
+          <div class="score-top">
+            <div class="score-pct">30%</div>
+            <div class="score-name">Anubis ML Engine</div>
+          </div>
+          <div class="chips">
+            <span class="chip-sm">XGBoost</span>
+            <span class="chip-sm">Rug prediction</span>
+            <span class="chip-sm">Token health</span>
+            <span class="chip-sm">Monte Carlo p5–p95</span>
+            <span class="chip-sm chip-more">50 features</span>
+          </div>
+        </div>
+        <div class="score-cell">
+          <div class="score-top">
+            <div class="score-pct">20%</div>
+            <div class="score-name">Community</div>
+          </div>
+          <div class="chips">
+            <span class="chip-sm">Claude quality filter</span>
+            <span class="chip-sm">Sun Points</span>
+            <span class="chip-sm">Auto-blacklist</span>
+            <span class="chip-sm chip-more">3 reports = block</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- CTA -->
+<!-- ⑤ x402 TEASER BAND -->
+<div class="x402-band">
+  <div class="x402-inner">
+    <div>
+      <div class="x402-label">x402 Protocol</div>
+      <div class="x402-text">
+        No API keys. No subscriptions.
+        <span>Pay $0.02 USDT per trust check — on TRON's own rails.</span>
+      </div>
+    </div>
+    <div class="btn-wrap"><a href="passport.html" class="btn-primary" style="font-size:13px;">See x402 Docs →</a></div>
+  </div>
+</div>
+
+<!-- ⑥ CTA -->
 <section class="cta-section">
   <div class="cta-glow"></div>
   <div class="container">
-    <div class="cta-title">Trust is the primitive<br>the agent economy needs.</div>
-    <p class="cta-sub">The missing infrastructure layer for AI agents, DeFi protocols, and B2B commerce on Tron.</p>
+    <div class="cta-title">The trust primitive<br>agents need.</div>
+    <p class="cta-sub">Infrastructure for AI agents, DeFi protocols, and B2B commerce on Tron.</p>
     <div class="cta-btns">
       <div class="btn-wrap"><a href="dashboard.html" class="btn-primary">Try the Lookup →</a></div>
-      <button class="btn-outline">View on GitHub</button>
+      <a href="passport.html" class="btn-outline">Read the Docs</a>
     </div>
   </div>
 </section>
@@ -343,136 +463,151 @@
 <footer>
   <div class="container">
     <div class="footer-inner">
-      <div class="footer-copy">© 2026 TronTrust · PennBlockathon 2026 · Nile Testnet</div>
-      <div class="footer-links">
-        <a href="#">Docs</a><a href="#">GitHub</a><a href="#">x402 API</a>
-      </div>
+      <div class="footer-copy">© 2026 Kairos · PennBlockathon 2026 · Nile Testnet</div>
+      <div class="footer-links"><a href="#">Docs</a><a href="#">GitHub</a><a href="#">x402 API</a></div>
     </div>
   </div>
 </footer>
+
+<!-- HERO CANVAS -->
 <script>
-  /* ── HERO CANVAS ANIMATION ── */
-  (function() {
-    const canvas = document.getElementById('heroCanvas');
-    const ctx = canvas.getContext('2d');
-    let W, H, shards = [], lines = [];
-
-    function resize() {
-      W = canvas.width  = canvas.offsetWidth;
-      H = canvas.height = canvas.offsetHeight;
+(function() {
+  const canvas = document.getElementById('heroCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, shards = [], nodes = [];
+  function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; }
+  window.addEventListener('resize', resize); resize();
+  function Shard() { this.reset(true); }
+  Shard.prototype.reset = function(init) {
+    this.x=Math.random()*W; this.y=init?Math.random()*H:H+30;
+    this.vx=(Math.random()-0.5)*0.35; this.vy=-(Math.random()*0.45+0.1);
+    this.size=Math.random()*20+5; this.rot=Math.random()*Math.PI*2;
+    this.rotV=(Math.random()-0.5)*0.007; this.sides=Math.random()<0.65?3:4;
+    const r=Math.floor(Math.random()*60+150),g=Math.floor(Math.random()*10),b=0;
+    this.alpha=Math.random()*0.2+0.04;
+    this.fill=`rgba(${r},${g},${b},${this.alpha})`;
+    this.stroke=`rgba(${r+30},${g+10},10,${this.alpha+0.08})`;
+  };
+  Shard.prototype.draw=function(){
+    ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.rot);ctx.beginPath();
+    for(let i=0;i<this.sides;i++){const a=(i/this.sides)*Math.PI*2-Math.PI/2;i===0?ctx.moveTo(Math.cos(a)*this.size,Math.sin(a)*this.size):ctx.lineTo(Math.cos(a)*this.size,Math.sin(a)*this.size);}
+    ctx.closePath();ctx.fillStyle=this.fill;ctx.strokeStyle=this.stroke;ctx.lineWidth=0.6;ctx.fill();ctx.stroke();ctx.restore();
+  };
+  Shard.prototype.update=function(){
+    this.x+=this.vx;this.y+=this.vy;this.rot+=this.rotV;
+    if(this.y<-40||this.x<-60||this.x>W+60)this.reset(false);
+  };
+  function Node(){this.x=Math.random()*W;this.y=Math.random()*H;this.vx=(Math.random()-0.5)*0.18;this.vy=(Math.random()-0.5)*0.18;}
+  Node.prototype.update=function(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>W)this.vx*=-1;if(this.y<0||this.y>H)this.vy*=-1;};
+  for(let i=0;i<55;i++)shards.push(new Shard());
+  for(let i=0;i<22;i++)nodes.push(new Node());
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+      const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<160){ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.strokeStyle=`rgba(220,30,15,${(1-d/160)*0.07})`;ctx.lineWidth=0.5;ctx.stroke();}
     }
-    window.addEventListener('resize', resize);
-    resize();
+    shards.forEach(s=>{s.update();s.draw();}); nodes.forEach(n=>n.update());
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
 
-    /* Shard: a slowly drifting geometric fragment */
-    function Shard() {
-      this.reset(true);
-    }
-    Shard.prototype.reset = function(init) {
-      this.x    = Math.random() * W;
-      this.y    = init ? Math.random() * H : H + 30;
-      this.vx   = (Math.random() - 0.5) * 0.35;
-      this.vy   = -(Math.random() * 0.45 + 0.1);
-      this.size = Math.random() * 20 + 5;
-      this.rot  = Math.random() * Math.PI * 2;
-      this.rotV = (Math.random() - 0.5) * 0.007;
-      this.sides = Math.random() < 0.65 ? 3 : 4;
-      /* dark crimson → deep red, very low opacity */
-      const r = Math.floor(Math.random() * 60 + 150);
-      const g = Math.floor(Math.random() * 10);
-      const b = Math.floor(Math.random() * 10);
-      this.alpha = Math.random() * 0.22 + 0.04;
-      this.fill  = `rgba(${r},${g},${b},${this.alpha})`;
-      this.stroke= `rgba(${r+30},${g+10},${b+10},${this.alpha + 0.08})`;
-    };
-    Shard.prototype.draw = function() {
-      ctx.save();
-      ctx.translate(this.x, this.y);
-      ctx.rotate(this.rot);
-      ctx.beginPath();
-      for (let i = 0; i < this.sides; i++) {
-        const a = (i / this.sides) * Math.PI * 2 - Math.PI / 2;
-        const x = Math.cos(a) * this.size;
-        const y = Math.sin(a) * this.size;
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.closePath();
-      ctx.fillStyle   = this.fill;
-      ctx.strokeStyle = this.stroke;
-      ctx.lineWidth   = 0.6;
-      ctx.fill();
-      ctx.stroke();
-      ctx.restore();
-    };
-    Shard.prototype.update = function() {
-      this.x   += this.vx;
-      this.y   += this.vy;
-      this.rot += this.rotV;
-      if (this.y < -40 || this.x < -60 || this.x > W + 60) this.reset(false);
-    };
+<!-- THEME -->
+<script>
+const toggle = document.getElementById('themeToggle');
+if (localStorage.getItem('trontrust-theme') === 'light') {
+  document.documentElement.setAttribute('data-theme','light'); toggle.textContent='☀️';
+}
+toggle.addEventListener('click', () => {
+  const light = document.documentElement.getAttribute('data-theme') === 'light';
+  if (light) { document.documentElement.removeAttribute('data-theme'); toggle.textContent='🌙'; localStorage.setItem('trontrust-theme','dark'); }
+  else { document.documentElement.setAttribute('data-theme','light'); toggle.textContent='☀️'; localStorage.setItem('trontrust-theme','light'); }
+  setTimeout(updateChartTheme, 50);
+});
+</script>
 
-    /* Floating node: slow-moving point that draws faint connecting lines */
-    function Node() {
-      this.x  = Math.random() * W;
-      this.y  = Math.random() * H;
-      this.vx = (Math.random() - 0.5) * 0.18;
-      this.vy = (Math.random() - 0.5) * 0.18;
-    }
-    Node.prototype.update = function() {
-      this.x += this.vx; this.y += this.vy;
-      if (this.x < 0 || this.x > W) this.vx *= -1;
-      if (this.y < 0 || this.y > H) this.vy *= -1;
-    };
+<!-- COUNT-UP + FADE-UP -->
+<script>
+function animateCount(el) {
+  const target = parseFloat(el.dataset.countup);
+  const prefix = el.dataset.prefix || '';
+  const suffix = el.dataset.suffix || '';
+  const decimals = parseInt(el.dataset.decimals || '0');
+  const integer = el.dataset.integer === 'true';
+  const duration = 1600;
+  const start = performance.now();
+  (function step(now) {
+    const ease = 1 - Math.pow(1 - Math.min((now - start) / duration, 1), 3);
+    const val = target * ease;
+    el.textContent = prefix + (integer ? Math.round(val).toLocaleString() : val.toFixed(decimals)) + suffix;
+    if (ease < 1) requestAnimationFrame(step);
+  })(start);
+}
+const countObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting && !e.target.dataset.counted) { e.target.dataset.counted='1'; animateCount(e.target); } });
+}, { threshold: 0.4 });
+document.querySelectorAll('[data-countup]').forEach(el => countObs.observe(el));
 
-    /* Spawn */
-    for (let i = 0; i < 55; i++) shards.push(new Shard());
-    for (let i = 0; i < 22; i++) lines.push(new Node());
+const fadeObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => fadeObs.observe(el));
+</script>
 
-    const CONNECT_DIST = 160;
+<!-- CHART -->
+<script>
+const isLight = () => document.documentElement.getAttribute('data-theme') === 'light';
+function gc() {
+  return {
+    text: isLight() ? '#555' : 'rgba(200,188,216,0.85)',
+    grid: isLight() ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.06)'
+  };
+}
+const c = gc();
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = c.text;
 
-    function draw() {
-      ctx.clearRect(0, 0, W, H);
+const chartIllicit = new Chart(document.getElementById('chartIllicit'), {
+  type: 'bar',
+  data: {
+    labels: ['TRON','Ethereum','Bitcoin','BSC','Polygon'],
+    datasets: [{
+      data: [58, 24, 12, 3, 3],
+      backgroundColor: ['#e8261a','rgba(59,130,246,0.7)','rgba(245,158,11,0.7)','rgba(139,92,246,0.6)','rgba(34,197,94,0.6)'],
+      borderColor:     ['#e8261a','#3b82f6','#f59e0b','#8b5cf6','#22c55e'],
+      borderWidth: 1, borderRadius: 3
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x}% of illicit activity` } }
+    },
+    scales: {
+      x: {
+        grid: { color: c.grid }, ticks: { color: c.text, callback: v => `${v}%` },
+        max: 65
+      },
+      y: { grid: { display: false }, ticks: { color: c.text, font: { size: 12, weight: '600' } } }
+    },
+    animation: { duration: 1000 }
+  }
+});
 
-      /* connecting lines between nearby nodes */
-      for (let i = 0; i < lines.length; i++) {
-        for (let j = i + 1; j < lines.length; j++) {
-          const dx = lines[i].x - lines[j].x;
-          const dy = lines[i].y - lines[j].y;
-          const d  = Math.sqrt(dx*dx + dy*dy);
-          if (d < CONNECT_DIST) {
-            const a = (1 - d / CONNECT_DIST) * 0.07;
-            ctx.beginPath();
-            ctx.moveTo(lines[i].x, lines[i].y);
-            ctx.lineTo(lines[j].x, lines[j].y);
-            ctx.strokeStyle = `rgba(220,30,15,${a})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
-
-      shards.forEach(s => { s.update(); s.draw(); });
-      lines.forEach(n => n.update());
-      requestAnimationFrame(draw);
-    }
-    draw();
-  })();
-
-  const toggle = document.getElementById('themeToggle');
-  const saved = localStorage.getItem('trontrust-theme');
-  if (saved === 'light') { document.documentElement.setAttribute('data-theme','light'); toggle.textContent = '☀️'; }
-  toggle.addEventListener('click', () => {
-    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-    if (isLight) {
-      document.documentElement.removeAttribute('data-theme');
-      toggle.textContent = '🌙';
-      localStorage.setItem('trontrust-theme', 'dark');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'light');
-      toggle.textContent = '☀️';
-      localStorage.setItem('trontrust-theme', 'light');
-    }
+function updateChartTheme() {
+  const nc = gc();
+  Object.values(chartIllicit.options.scales).forEach(ax => {
+    if (ax.ticks) ax.ticks.color = nc.text;
+    if (ax.grid)  ax.grid.color  = nc.grid;
   });
+  chartIllicit.update();
+}
 </script>
 
 <div id="cursorGlow"></div>
@@ -480,13 +615,9 @@
 <div class="page-glow pg-2"></div>
 <div class="page-glow pg-3"></div>
 <script>
-  const glow = document.getElementById('cursorGlow');
-  document.addEventListener('mousemove', e => {
-    glow.style.opacity = '1';
-    glow.style.left = e.clientX + 'px';
-    glow.style.top  = e.clientY + 'px';
-  });
-  document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
+const glow = document.getElementById('cursorGlow');
+document.addEventListener('mousemove', e => { glow.style.opacity='1'; glow.style.left=e.clientX+'px'; glow.style.top=e.clientY+'px'; });
+document.addEventListener('mouseleave', () => { glow.style.opacity='0'; });
 </script>
 </body>
 </html>

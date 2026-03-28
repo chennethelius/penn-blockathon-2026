@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "preview": "remotion studio src/index.js",
-    "render": "remotion render src/index.js TronTrustDemo out/demo.mp4"
+    "render": "remotion render src/index.js KairosDemo out/demo.mp4"
   },
   "keywords": [],
   "author": "",
