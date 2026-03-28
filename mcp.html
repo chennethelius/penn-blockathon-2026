@@ -334,7 +334,7 @@ POST /api/v1/threat/report
 <script>
   const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
     ? 'http://localhost:8000/api/v1'
-    : window.location.origin + '/api/v1';
+    : 'https://penn-blockathon-2026-production.up.railway.app/api/v1';
 
   function scoreColor(s){ return s>=80?'var(--score-g)':s>=60?'#3b82f6':s>=40?'var(--score-y)':'var(--score-r)'; }
   function verdictLabel(s){ return s>=80?'TRUSTED':s>=60?'REPUTABLE':s>=40?'CAUTION':s>=20?'RISKY':'BLACKLISTED'; }
