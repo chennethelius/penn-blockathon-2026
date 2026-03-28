@@ -4,7 +4,7 @@ import os
 import json
 import time
 import logging
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Request
 from pydantic import BaseModel
 from typing import Optional
 import httpx
@@ -16,6 +16,11 @@ logger = logging.getLogger(__name__)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL = "llama-3.3-70b-versatile"
+
+# Rate limiting: max 10 commands per minute per IP
+_rate_limit: dict[str, list[float]] = {}
+RATE_LIMIT_MAX = 10
+RATE_LIMIT_WINDOW = 60  # seconds
 
 router = APIRouter()
 
@@ -474,8 +479,18 @@ class CommandRequest(BaseModel):
 
 
 @router.post("/arena/command")
-async def arena_command(req: CommandRequest):
+async def arena_command(req: CommandRequest, request: Request):
     """Interpret a natural language command via Groq LLM and execute it."""
+    # Rate limit
+    ip = request.client.host if request.client else "unknown"
+    now = time.time()
+    hits = _rate_limit.get(ip, [])
+    hits = [t for t in hits if now - t < RATE_LIMIT_WINDOW]
+    if len(hits) >= RATE_LIMIT_MAX:
+        return {"reply": f"Rate limited — max {RATE_LIMIT_MAX} commands per minute. Try again shortly."}
+    hits.append(now)
+    _rate_limit[ip] = hits
+
     if not GROQ_API_KEY:
         return {"error": "GROQ_API_KEY not set", "reply": "LLM not configured. Add GROQ_API_KEY to .env."}
 
