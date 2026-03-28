@@ -66,26 +66,26 @@ class TronFeatureExtractor:
     async def extract(self, address: str) -> AgentFeatureVector:
         fv = AgentFeatureVector(address=address)
 
-        results = await asyncio.gather(
-            self._fetch_account(address),
-            self._fetch_tx_stats(address),
-            self._fetch_trc20_transfers(address),
-            self._fetch_dex_trades(address),
+        # TronGrid (no rate limit) + first batch of TronScan (max 4 concurrent)
+        batch1 = await asyncio.gather(
+            self._fetch_account(address),       # TronGrid — no limit
+            self._fetch_tx_stats(address),       # TronScan
+            self._fetch_trc20_transfers(address),# TronScan
+            self._fetch_dex_trades(address),     # TronScan
+            return_exceptions=True,
+        )
+        account_data, tx_stats, trc20_transfers, dex_trades = batch1
+
+        # Stagger second batch to avoid TronScan 5/20s rate limit
+        await asyncio.sleep(0.5)
+
+        batch2 = await asyncio.gather(
             self._fetch_justlend_via_tronscan(address),
             self._fetch_contract_deployments(address),
             self._fetch_tronscan_risk(address),
             return_exceptions=True,
         )
-
-        (
-            account_data,
-            tx_stats,
-            trc20_transfers,
-            dex_trades,
-            jl_data,
-            contract_data,
-            risk_data,
-        ) = results
+        jl_data, contract_data, risk_data = batch2
 
         self._apply_account(fv, account_data)
         self._apply_tx_stats(fv, tx_stats)

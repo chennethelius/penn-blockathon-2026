@@ -2,6 +2,7 @@
 
 import time
 from fastapi import APIRouter
+from pydantic import BaseModel
 from app.models.schemas import SunPointsResponse
 
 router = APIRouter()
@@ -38,6 +39,27 @@ async def get_sunpoints(address: str):
         totalEarned=sp["totalEarned"],
         streak=sp["streak"],
     )
+
+
+class OutcomeRequest(BaseModel):
+    queryId: str
+    outcome: str
+    reporter: str
+
+
+@router.post("/outcome")
+async def report_outcome(req: OutcomeRequest):
+    """Report job outcome. Awards 5 Sun Points to reporter."""
+    award_points(req.reporter, 5)
+    sp = _get_or_create(req.reporter)
+    return {
+        "status": "recorded",
+        "queryId": req.queryId,
+        "outcome": req.outcome,
+        "reporter": req.reporter,
+        "sunPointsEarned": 5,
+        "newBalance": sp["balance"],
+    }
 
 
 @router.post("/sunpoints/claim")

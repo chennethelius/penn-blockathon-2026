@@ -1,4 +1,5 @@
 module.exports = {
+  contracts_directory: "./src",
   networks: {
     nile: {
       privateKey: process.env.PRIVATE_KEY_NILE,
@@ -21,16 +22,9 @@ module.exports = {
       fullHost: "http://127.0.0.1:9090",
       network_id: "9",
     },
-  },
-  compilers: {
-    solc: {
-      version: "0.8.20",
-      settings: {
-        optimizer: {
-          enabled: true,
-          runs: 200,
-        },
-        evmVersion: "istanbul",
+    compilers: {
+      solc: {
+        version: "0.8.6",
       },
     },
   },

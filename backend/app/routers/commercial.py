@@ -1,65 +1,65 @@
-"""Commercial trust endpoints (TronTrust exclusive)."""
+"""Commercial trust endpoints — wired to CommercialTrust.sol on-chain."""
 
 from fastapi import APIRouter
 from app.models.schemas import RecordPaymentRequest, TermsResponse
+from app.services.contracts import get_contracts
 
 router = APIRouter()
-
-# In-memory store for demo
-_payments: list[dict] = []
-_wallet_stats: dict[str, dict] = {}
 
 
 @router.post("/commercial/record-payment")
 async def record_payment(req: RecordPaymentRequest):
-    """Record invoice payment — called by PayClaw after settlement."""
-    _payments.append(req.model_dump())
+    """Record invoice payment — writes to CommercialTrust.sol on-chain."""
+    contracts = get_contracts()
 
-    # Update wallet stats
-    for addr in [req.payer, req.payee]:
-        if addr not in _wallet_stats:
-            _wallet_stats[addr] = {"total": 0, "paid": 0, "overdue": 0, "volume": 0.0}
+    if not contracts.is_ready:
+        return {"success": False, "error": "Contracts not deployed", "invoiceId": req.invoiceId, "txHash": ""}
 
-    _wallet_stats[req.payer]["total"] += 1
-    _wallet_stats[req.payer]["volume"] += req.amountUsdt
-    if req.wasOverdue:
-        _wallet_stats[req.payer]["overdue"] += 1
-    else:
-        _wallet_stats[req.payer]["paid"] += 1
-
-    # TODO: call CommercialTrust.sol on-chain
-
-    return {"status": "recorded", "invoiceId": req.invoiceId}
+    try:
+        amount_usdt_int = int(req.amountUsdt * 1_000_000)
+        tx_hash = contracts.record_payment(
+            req.payer, req.payee, amount_usdt_int, req.daysToPayment, req.wasOverdue,
+        )
+        return {"success": True, "invoiceId": req.invoiceId, "txHash": tx_hash}
+    except Exception as e:
+        return {"success": False, "error": f"On-chain write failed: {e}", "invoiceId": req.invoiceId, "txHash": ""}
 
 
 @router.get("/commercial/terms", response_model=TermsResponse)
 async def get_terms(buyer: str, merchant: str):
-    """Get recommended payment terms based on commercial trust score."""
-    stats = _wallet_stats.get(buyer, {"total": 0, "paid": 0})
-
-    if stats["total"] == 0:
-        score = 50
-    else:
-        score = int((stats["paid"] / stats["total"]) * 100)
-
-    if score >= 80:
-        return TermsResponse(paymentWindowDays=30, requiresEscrow=False, creditLimitUsdt=100000.0, reasoning=f"Buyer score {score}: excellent payment history")
-    elif score >= 60:
-        return TermsResponse(paymentWindowDays=14, requiresEscrow=False, creditLimitUsdt=25000.0, reasoning=f"Buyer score {score}: good payment history")
-    elif score >= 40:
-        return TermsResponse(paymentWindowDays=7, requiresEscrow=True, creditLimitUsdt=5000.0, reasoning=f"Buyer score {score}: moderate risk, escrow recommended")
-    else:
-        return TermsResponse(paymentWindowDays=0, requiresEscrow=True, creditLimitUsdt=1000.0, reasoning=f"Buyer score {score}: high risk, prepay with escrow required")
+    """Get recommended payment terms from on-chain CommercialTrust."""
+    contracts = get_contracts()
+    try:
+        terms = contracts.get_recommended_terms(buyer, merchant)
+        credit_limit = terms["creditLimitUsdt"] / 1_000_000 if terms["creditLimitUsdt"] > 1000 else terms["creditLimitUsdt"]
+        score = contracts.get_commercial_score(buyer, merchant)
+    except Exception as e:
+        return TermsResponse(
+            paymentWindowDays=7,
+            requiresEscrow=True,
+            creditLimitUsdt=5000.0,
+            reasoning=f"Could not read on-chain data ({e}). Default terms applied.",
+        )
+    return TermsResponse(
+        paymentWindowDays=terms["paymentWindowDays"],
+        requiresEscrow=terms["requiresEscrow"],
+        creditLimitUsdt=credit_limit,
+        reasoning=f"Buyer commercial score: {score}",
+    )
 
 
 @router.get("/commercial/relationship")
 async def get_relationship(a: str, b: str):
-    """Get commercial relationship between two addresses."""
-    # Filter payments between these two addresses
-    relevant = [p for p in _payments if {p["payer"], p["payee"]} == {a, b}]
+    """Get commercial relationship between two addresses from on-chain."""
+    contracts = get_contracts()
+    try:
+        score = contracts.get_commercial_score(a, b)
+        terms = contracts.get_recommended_terms(a, b)
+    except Exception:
+        return {"partyA": a, "partyB": b, "relationshipScore": 50, "recommendedTerms": {"paymentWindowDays": 7, "requiresEscrow": True, "creditLimitUsdt": 5000}}
     return {
         "partyA": a,
         "partyB": b,
-        "invoicesTotal": len(relevant),
-        "payments": relevant,
+        "relationshipScore": score,
+        "recommendedTerms": terms,
     }
