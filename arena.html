@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agent Arena — TronTrust</title>
+  <title>Agent Arena — Kairos</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
     .page-wrap { padding: 84px 0 30px; }
@@ -191,17 +191,25 @@
   <nav>
     <div class="nav-inner">
       <a class="nav-logo" href="index.html">
-        <svg class="tron-logo-svg" viewBox="0 0 64 64" fill="none"><polygon points="32,4 60,56 4,56" fill="#e8261a"/><polygon points="32,18 48,50 16,50" fill="#06000a"/></svg>
-        <span class="nav-logo-text"><em>Tron</em><span>Trust</span></span>
+        <svg class="tron-logo-svg" viewBox="0 0 32 32" fill="none">
+          <polygon points="16,2 30,10 30,22 16,30 2,22 2,10" fill="rgba(232,38,26,0.15)" stroke="#e8261a" stroke-width="1.2"/>
+          <polygon points="16,6 26,12 26,20 16,26 6,20 6,12" fill="rgba(232,38,26,0.2)"/>
+          <polygon points="16,10 22,14 22,20 16,24 10,20 10,14" fill="#e8261a"/>
+          <line x1="16" y1="2" x2="16" y2="10" stroke="#e8261a" stroke-width="1"/>
+          <line x1="30" y1="10" x2="22" y2="14" stroke="#e8261a" stroke-width="1"/>
+          <line x1="30" y1="22" x2="22" y2="20" stroke="#e8261a" stroke-width="1"/>
+        </svg>
+        <div class="nav-logo-text"><em>KAI</em><span>ROS</span></div>
       </a>
       <ul class="nav-links">
         <li><a href="index.html">Home</a></li>
         <li><a href="dashboard.html">Lookup</a></li>
-        <li><a href="passport.html">Passport</a></li>
+        <li><a href="mcp.html">MCP</a></li>
         <li><a href="arena.html" class="active">Arena</a></li>
       </ul>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><span id="themeIcon">&#9790;</span></button>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="theme-toggle" id="themeToggle" title="Toggle day/night mode">&#127769;</button>
+        <div class="nav-cta-wrap"><button class="nav-cta">Connect TronLink</button></div>
       </div>
     </div>
   </nav>
@@ -238,7 +246,7 @@
         <!-- CENTER: Chat -->
         <div class="chat-panel panel">
           <div class="panel-head">
-            <span class="panel-title">TronTrust</span>
+            <span class="panel-title">Kairos</span>
             <span class="badge b-dim" id="cmdStatus">READY</span>
           </div>
           <div class="chat-body" id="chatBody">
@@ -249,10 +257,10 @@
           </div>
           <div class="chat-chips" id="chatChips">
             <span class="cmd-chip" onclick="runExample(this)">deploy a trading bot called JudgeBot</span>
-            <span class="cmd-chip" onclick="runExample(this)">send 1 TRX to Spam Bot</span>
+            <span class="cmd-chip" onclick="runExample(this)">deploy a DeFi agent called YieldMax</span>
+            <span class="cmd-chip" onclick="runExample(this)">send 1 TRX to Delve</span>
             <span class="cmd-chip" onclick="runExample(this)">set min trust to 70</span>
-            <span class="cmd-chip" onclick="runExample(this)">check Aave Lend</span>
-            <span class="cmd-chip" onclick="runExample(this)">paid lookup on Delve</span>
+            <span class="cmd-chip" onclick="runExample(this)">paid lookup on Coinbase Pay</span>
           </div>
           <div class="chat-input-row">
             <input class="chat-input" id="cmdInput" type="text" placeholder="Type a command..." autocomplete="off" />
@@ -315,10 +323,11 @@
 
   <footer>
     <div class="container footer-inner">
-      <span class="footer-copy">TronTrust &mdash; PennBlockathon 2026</span>
+      <span class="footer-copy">&copy; 2026 Kairos &middot; PennBlockathon 2026</span>
       <div class="footer-links">
-        <a href="https://nile.tronscan.org" target="_blank">Nile TronScan</a>
-        <a href="https://github.com" target="_blank">GitHub</a>
+        <a href="index.html">Home</a>
+        <a href="mcp.html">MCP</a>
+        <a href="dashboard.html">Lookup</a>
       </div>
     </div>
   </footer>
@@ -569,14 +578,16 @@ async function pollUpdates() {
   } catch {}
 }
 
-// ── Theme ──
-function toggleTheme() {
-  const h = document.documentElement, n = h.getAttribute('data-theme')==='light' ? '' : 'light';
-  if (n) h.setAttribute('data-theme','light'); else h.removeAttribute('data-theme');
-  document.getElementById('themeIcon').innerHTML = n ? '&#9728;' : '&#9790;';
-  localStorage.setItem('theme', n||'dark');
+// ── Theme (matches other pages) ──
+const toggle = document.getElementById('themeToggle');
+if (localStorage.getItem('trontrust-theme') === 'light') {
+  document.documentElement.setAttribute('data-theme','light'); toggle.textContent='\u2600\uFE0F';
 }
-(function(){if(localStorage.getItem('theme')==='light'){document.documentElement.setAttribute('data-theme','light');document.getElementById('themeIcon').innerHTML='&#9728;';}})();
+toggle.addEventListener('click', () => {
+  const light = document.documentElement.getAttribute('data-theme') === 'light';
+  if (light) { document.documentElement.removeAttribute('data-theme'); toggle.textContent='\uD83C\uDF19'; localStorage.setItem('trontrust-theme','dark'); }
+  else { document.documentElement.setAttribute('data-theme','light'); toggle.textContent='\u2600\uFE0F'; localStorage.setItem('trontrust-theme','light'); }
+});
 
 const glow = document.getElementById('cursorGlow');
 document.addEventListener('mousemove', e => { glow.style.left=e.clientX+'px'; glow.style.top=e.clientY+'px'; if(!glow.classList.contains('visible'))glow.classList.add('visible'); });

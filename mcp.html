@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TrustPassport & MCP — Kairos</title>
+  <title>MCP & Passport — Kairos</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
     .page-wrap { padding: 104px 0 80px; }
@@ -113,7 +113,7 @@
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="dashboard.html">Lookup</a></li>
-      <li><a href="passport.html" class="active">Passport</a></li>
+      <li><a href="mcp.html" class="active">MCP</a></li>
       <li><a href="arena.html">Arena</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:10px;">
@@ -125,94 +125,61 @@
 
 <div class="page-wrap">
   <div class="container">
-    <div class="sec-label">TrustPassport</div>
-    <h1 style="font-size:clamp(26px,4vw,42px);font-weight:900;letter-spacing:-0.03em;margin-bottom:8px;">Soul-bound identity for every agent</h1>
-    <p style="font-size:15px;color:var(--dim);margin-bottom:0;">One non-transferable NFT per wallet. Your on-chain reputation, permanently attached to your address.</p>
+    <!-- MCP CONNECTION (primary content) -->
+    <div class="sec-label">MCP Server · 12 Tools</div>
+    <h1 style="font-size:clamp(26px,4vw,42px);font-weight:900;letter-spacing:-0.03em;margin-bottom:8px;">Connect any AI agent to Kairos</h1>
+    <p style="font-size:15px;color:var(--dim);margin-bottom:0;">One config line. Claude, GPT, or any MCP-compatible agent can deploy wallets, send trust-gated payments, and manage policies on Tron.</p>
 
-    <div class="passport-layout">
-      <div>
-        <div class="passport-card">
-          <div class="p-eyebrow">TrustPassport · TTPAS · Soul-bound NFT</div>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-            <div class="p-avatar">🤖</div>
-            <div>
-              <div class="p-name" id="pName">DeFiBot Alpha</div>
-              <div class="p-addr" id="pAddr">TGx7f3kM9aKpR2w1...a9Kp</div>
-            </div>
-          </div>
-          <div class="p-scores">
-            <div class="pscore"><div class="pscore-val" id="pTrust" style="color:var(--score-g)">88</div><div class="pscore-lbl">Trust Score</div></div>
-            <div class="pscore"><div class="pscore-val" id="pComm" style="color:var(--text)">91</div><div class="pscore-lbl">Commercial</div></div>
-          </div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;" id="pBadges">
-            <span class="badge b-green">TRUSTED</span>
-            <span class="badge b-dim">DeFi Agent</span>
-            <span class="badge b-dim" id="pSunBadge">☀️ 2,140 pts</span>
-          </div>
-          <div class="p-stat-list">
-            <div class="p-stat"><span>Token ID</span><span id="pTokenId">#00142</span></div>
-            <div class="p-stat"><span>Agent type</span><span id="pAgentType">DeFi Agent</span></div>
-            <div class="p-stat"><span>Total jobs</span><span id="pJobs">342</span></div>
-            <div class="p-stat"><span>Sun Points</span><span id="pSun" style="color:var(--score-y)">☀️ 2,140</span></div>
-            <div class="p-stat"><span>Net-30 terms</span><span style="color:var(--score-g)">Approved</span></div>
-          </div>
-          <div style="margin:14px 0 14px;display:flex;gap:8px;align-items:center;">
-            <input id="kyaInput" type="text" placeholder="KYA code or wallet address" style="flex:1;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:7px 10px;font-size:11px;font-family:monospace;outline:none;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,0 100%);">
-            <div class="btn-wrap"><button onclick="lookupPassport()" class="btn-sm" style="font-size:11px;padding:7px 14px;">Lookup</button></div>
-          </div>
-          <div class="p-footer">Non-transferable · transferFrom() reverts on-chain<br>TrustPassport.sol · TronTrustOracle.sol · On-chain SVG</div>
+    <div style="margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="code-card" style="grid-column:1/-1;">
+        <div class="code-head">
+          <div class="dots"><div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div></div>
+          <div class="code-head-title">Quick Start — add to your MCP config</div>
+          <div></div>
         </div>
-
-        <div class="attest-section">
-          <div class="attest-label">Attestation Trail</div>
-          <div class="attest-item">
-            <div class="attest-left"><div class="attest-dot"></div><div class="attest-line"></div></div>
-            <div><div class="attest-action">Score updated → 88</div><div class="attest-detail">On-chain behavior recalculated after 12 new txs</div><div class="attest-meta">2 hours ago · 0x3f2a...8c1d</div></div>
-          </div>
-          <div class="attest-item">
-            <div class="attest-left"><div class="attest-dot" style="background:var(--muted)"></div><div class="attest-line"></div></div>
-            <div><div class="attest-action">Community review added</div><div class="attest-detail">5-star · "Reliable payment, fast settlement"</div><div class="attest-meta">1 day ago · 0x9e1b...4f7a</div></div>
-          </div>
-          <div class="attest-item">
-            <div class="attest-left"><div class="attest-dot" style="background:var(--muted)"></div></div>
-            <div><div class="attest-action">Passport minted</div><div class="attest-detail">Initial score: 50 · DeFi Agent registered</div><div class="attest-meta">127 days ago · 0x1a4c...d290</div></div>
-          </div>
+        <pre><span class="cm">// claude_desktop_config.json or .cursor/mcp.json</span>
+{
+  <span class="str">"mcpServers"</span>: {
+    <span class="str">"kairos"</span>: {
+      <span class="str">"command"</span>: <span class="str">"python"</span>,
+      <span class="str">"args"</span>: [<span class="str">"mcp_server/server.py"</span>]
+    }
+  }
+}</pre>
+      </div>
+      <div class="code-card">
+        <div class="code-head">
+          <div class="dots"><div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div></div>
+          <div class="code-head-title">MCP Tools — Agent Actions</div>
+          <div></div>
+        </div>
+        <div class="tool-list">
+          <div class="tool-item"><div class="tool-name">deploy_agent</div><div class="tool-desc">Generate Tron keypair, register on Oracle, mint Passport NFT. No address needed.</div></div>
+          <div class="tool-item"><div class="tool-name">trust_send</div><div class="tool-desc">Send TRX with trust gate enforcement. Blocked if recipient score &lt; threshold.</div></div>
+          <div class="tool-item"><div class="tool-name">set_min_trust</div><div class="tool-desc">Update minimum trust score on TrustWallet contract (0–100).</div></div>
+          <div class="tool-item"><div class="tool-name">check_recipient</div><div class="tool-desc">Pre-send check: score, verdict, ML risk flags.</div></div>
+          <div class="tool-item"><div class="tool-name">get_agent_trust</div><div class="tool-desc">Full trust score, breakdown, and risk outlook for any address.</div></div>
+          <div class="tool-item"><div class="tool-name">lock_agent_permissions</div><div class="tool-desc">Lock wallet via Tron Account Permission Management. Protocol-level enforcement.</div></div>
         </div>
       </div>
-
-      <div class="p-features">
-        <div class="p-feat">
-          <div class="p-feat-icon">🔒</div>
-          <div>
-            <div class="p-feat-title">Non-transferable by design</div>
-            <div class="p-feat-desc">Transfer functions revert on-chain. One passport per wallet, forever. Reputation can't be bought, sold, or delegated to another address.</div>
-          </div>
+      <div class="code-card">
+        <div class="code-head">
+          <div class="dots"><div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div></div>
+          <div class="code-head-title">MCP Tools — Intelligence</div>
+          <div></div>
         </div>
-        <div class="p-feat">
-          <div class="p-feat-icon">🏪</div>
-          <div>
-            <div class="p-feat-title">Commercial score side-by-side</div>
-            <div class="p-feat-desc">Shows both agent trust and B2B commercial reliability. PayClaw invoice history feeds a commercial sub-score. Score &gt; 80 unlocks net-30 terms automatically. Score &lt; 40 triggers escrow.</div>
-          </div>
-        </div>
-        <div class="p-feat">
-          <div class="p-feat-icon">🖼️</div>
-          <div>
-            <div class="p-feat-title">Fully on-chain SVG badge</div>
-            <div class="p-feat-desc">tokenURI returns an on-chain generated SVG. No IPFS, no external dependencies. The badge color updates in real time as your score changes.</div>
-          </div>
-        </div>
-        <div class="p-feat">
-          <div class="p-feat-icon">📋</div>
-          <div>
-            <div class="p-feat-title">EAS attestation trail</div>
-            <div class="p-feat-desc">Every score update creates an immutable on-chain attestation with an evidence CID. Full auditable history — no black box scoring.</div>
-          </div>
+        <div class="tool-list">
+          <div class="tool-item"><div class="tool-name">get_token_forensics</div><div class="tool-desc">TRC-20 rug analysis, honeypot detection, freeze/mint authority.</div></div>
+          <div class="tool-item"><div class="tool-name">get_agent_reputation</div><div class="tool-desc">Community reviews, sentiment, average rating.</div></div>
+          <div class="tool-item"><div class="tool-name">register_agent</div><div class="tool-desc">Register an existing address on the Oracle + mint Passport.</div></div>
+          <div class="tool-item"><div class="tool-name">report_outcome</div><div class="tool-desc">Report job result (success/failure). Earns 5 Sun Points.</div></div>
+          <div class="tool-item"><div class="tool-name">get_sun_points_balance</div><div class="tool-desc">Points balance, streak tracking, total earned.</div></div>
+          <div class="tool-item"><div class="tool-name">wallet_stats</div><div class="tool-desc">Transfer counts, blocked transfers, volume, enforcement status.</div></div>
         </div>
       </div>
     </div>
 
-    <!-- MCP -->
+    <!-- REST API & x402 -->
     <div class="mcp-block">
       <div class="sec-label">REST API · MCP Server · x402</div>
       <h2 class="sec-title">Built for AI agents to use</h2>
@@ -275,6 +242,80 @@ POST /api/v1/threat/report
             <div class="tool-item"><div class="tool-name">GET /api/v1/token/{address}</div><div class="tool-desc">TRC-20 token safety: honeypot probability, rug risk, freeze/mint function detection, bytecode analysis.</div></div>
             <div class="tool-item"><div class="tool-name">POST /api/v1/threat/report</div><div class="tool-desc">Community threat report. 3 independent reports auto-blacklists on TronTrustOracle.sol. Earns ☀️ +5 Sun Points.</div></div>
             <div class="tool-item"><div class="tool-name">GET /api/v1/commercial/terms?buyer=&merchant=</div><div class="tool-desc">Recommended payment terms based on CommercialTrust.sol history: Net-30/14/7/prepay, credit limit, escrow flag.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRUST PASSPORT (secondary content) -->
+    <div class="mcp-block">
+      <div class="sec-label">TrustPassport</div>
+      <h2 class="sec-title">Soul-bound identity for every agent</h2>
+      <p class="sec-sub">One non-transferable NFT per wallet. On-chain reputation, permanently attached to your address.</p>
+
+      <div class="passport-layout">
+        <div>
+          <div class="passport-card">
+            <div class="p-eyebrow">TrustPassport · TTPAS · Soul-bound NFT</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+              <div class="p-avatar">&#129302;</div>
+              <div>
+                <div class="p-name" id="pName">DeFiBot Alpha</div>
+                <div class="p-addr" id="pAddr">TGx7f3kM9aKpR2w1...a9Kp</div>
+              </div>
+            </div>
+            <div class="p-scores">
+              <div class="pscore"><div class="pscore-val" id="pTrust" style="color:var(--score-g)">88</div><div class="pscore-lbl">Trust Score</div></div>
+              <div class="pscore"><div class="pscore-val" id="pComm" style="color:var(--text)">91</div><div class="pscore-lbl">Commercial</div></div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;" id="pBadges">
+              <span class="badge b-green">TRUSTED</span>
+              <span class="badge b-dim">DeFi Agent</span>
+              <span class="badge b-dim" id="pSunBadge">&#9728;&#65039; 2,140 pts</span>
+            </div>
+            <div class="p-stat-list">
+              <div class="p-stat"><span>Token ID</span><span id="pTokenId">#00142</span></div>
+              <div class="p-stat"><span>Agent type</span><span id="pAgentType">DeFi Agent</span></div>
+              <div class="p-stat"><span>Total jobs</span><span id="pJobs">342</span></div>
+              <div class="p-stat"><span>Sun Points</span><span id="pSun" style="color:var(--score-y)">&#9728;&#65039; 2,140</span></div>
+              <div class="p-stat"><span>Net-30 terms</span><span style="color:var(--score-g)">Approved</span></div>
+            </div>
+            <div style="margin:14px 0 14px;display:flex;gap:8px;align-items:center;">
+              <input id="kyaInput" type="text" placeholder="KYA code or wallet address" style="flex:1;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:7px 10px;font-size:11px;font-family:monospace;outline:none;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,0 100%);">
+              <div class="btn-wrap"><button onclick="lookupPassport()" class="btn-sm" style="font-size:11px;padding:7px 14px;">Lookup</button></div>
+            </div>
+            <div class="p-footer">Non-transferable &middot; transferFrom() reverts on-chain<br>TrustPassport.sol &middot; TronTrustOracle.sol &middot; On-chain SVG</div>
+          </div>
+        </div>
+
+        <div class="p-features">
+          <div class="p-feat">
+            <div class="p-feat-icon">&#128274;</div>
+            <div>
+              <div class="p-feat-title">Non-transferable by design</div>
+              <div class="p-feat-desc">Transfer functions revert on-chain. One passport per wallet, forever. Reputation can't be bought, sold, or delegated.</div>
+            </div>
+          </div>
+          <div class="p-feat">
+            <div class="p-feat-icon">&#127978;</div>
+            <div>
+              <div class="p-feat-title">Commercial score side-by-side</div>
+              <div class="p-feat-desc">Shows both agent trust and B2B reliability. Score &gt; 80 unlocks net-30 terms. Score &lt; 40 triggers escrow.</div>
+            </div>
+          </div>
+          <div class="p-feat">
+            <div class="p-feat-icon">&#128444;&#65039;</div>
+            <div>
+              <div class="p-feat-title">Fully on-chain SVG badge</div>
+              <div class="p-feat-desc">tokenURI returns an on-chain generated SVG. No IPFS. Badge color updates in real time as score changes.</div>
+            </div>
+          </div>
+          <div class="p-feat">
+            <div class="p-feat-icon">&#128203;</div>
+            <div>
+              <div class="p-feat-title">Immutable attestation trail</div>
+              <div class="p-feat-desc">Every score update creates an on-chain attestation with an evidence CID. Full auditable history.</div>
+            </div>
           </div>
         </div>
       </div>

@@ -233,7 +233,7 @@ python3 -m http.server 3000
 
 - **Arena:** http://localhost:3000/arena.html
 - **Lookup:** http://localhost:3000/dashboard.html
-- **Passport:** http://localhost:3000/passport.html
+- **MCP & Passport:** http://localhost:3000/mcp.html
 - **API Docs:** http://localhost:8000/docs
 
 ---
@@ -265,7 +265,7 @@ penn-blockathon-2026/
 ├── scripts/          # Seed agents, utilities
 ├── arena.html        # Main demo page (Groq-powered chat)
 ├── dashboard.html    # Trust lookup (Anubis ML)
-├── passport.html     # Agent identity viewer
+├── mcp.html          # MCP connection + agent identity
 ├── index.html        # Landing page
 └── styles.css        # Shared design system
 ```
