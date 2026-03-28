@@ -223,6 +223,7 @@
 
 <script>
   const API_BASE = 'http://localhost:8000/api/v1';
+  const ANUBIS   = 'http://localhost:8001';
 
   const DEFS = [
     {icon:'⚡', type:'ENERGY DRAIN ATTACK',   color:'var(--score-r)', sev:'CRITICAL', sc:'b-red',    detail:()=>`T${r()}... draining energy from T${r()}...`,   cat:'critical', alert_type:'energy_drain'},
@@ -272,7 +273,11 @@
 
     result.textContent = 'Submitting…';
     try {
-      const res = await fetch(`${API_BASE}/threat/report?maliciousAddress=${addr}&threatType=${type}&evidence=user_report&reporterAddress=TDemoReporter001`, { method:'POST', signal:AbortSignal.timeout(4000) });
+      const res = await fetch(`${ANUBIS}/threat/report`, {
+        method:'POST', signal:AbortSignal.timeout(4000),
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ malicious_address:addr, threat_type:type, evidence:{source:'ui_report'}, reporter_address:'TDemoReporter001' }),
+      });
       const data = await res.json();
       if (data.autoBlacklisted) {
         result.innerHTML = `Auto-blacklisted after ${data.reportCount} reports. <span style="color:var(--score-y)">☀️ +${data.sunPointsEarned} Sun Points earned.</span>`;
@@ -289,31 +294,57 @@
     document.getElementById('reportAddr').value = '';
   }
 
-  // Try to load real alerts from API, fall back to demo
+  const TYPE_MAP = {
+    energy_drain:     {icon:'⚡',type:'ENERGY DRAIN ATTACK',   color:'var(--score-r)',sev:'CRITICAL',sc:'b-red',   cat:'critical'},
+    fake_usdt:        {icon:'🪙',type:'FAKE USDT CONTRACT',    color:'var(--score-r)',sev:'CRITICAL',sc:'b-red',   cat:'critical'},
+    freeze_abuse:     {icon:'🔒',type:'FREEZE AUTHORITY ABUSE',color:'var(--score-y)',sev:'HIGH',    sc:'b-yellow',cat:'high'},
+    permission_bypass:{icon:'🔑',type:'PERMISSION BYPASS',     color:'var(--score-y)',sev:'HIGH',    sc:'b-yellow',cat:'high'},
+    address_poisoning:{icon:'📍',type:'ADDRESS POISONING',     color:'var(--dim)',    sev:'MEDIUM',  sc:'b-dim',   cat:'medium'},
+    sr_manipulation:  {icon:'🗳️',type:'SR VOTE MANIPULATION',  color:'var(--score-y)',sev:'HIGH',    sc:'b-yellow',cat:'high'},
+    high_risk_agent:  {icon:'🚨',type:'HIGH RISK AGENT',       color:'var(--score-r)',sev:'CRITICAL',sc:'b-red',   cat:'critical'},
+    wash_trading:     {icon:'♻️',type:'WASH TRADING',           color:'var(--score-y)',sev:'HIGH',    sc:'b-yellow',cat:'high'},
+    honeypot_deployed:{icon:'🍯',type:'HONEYPOT DEPLOYED',      color:'var(--score-r)',sev:'CRITICAL',sc:'b-red',   cat:'critical'},
+  };
+
+  function mapApiAlert(a) {
+    const t = TYPE_MAP[a.alert_type] || {icon:'⚠️',type:a.alert_type.replace(/_/g,' ').toUpperCase(),color:'var(--dim)',sev:'MEDIUM',sc:'b-dim',cat:'medium'};
+    const ago = Math.round((Date.now()/1000 - a.timestamp)/60);
+    return {...t, det:a.description, time:ago<1?'just now':ago+'m ago', id:a.alert_id};
+  }
+
   async function loadAlerts() {
+    // Load stats summary from Anubis
     try {
-      const res = await fetch(`${API_BASE}/sentinel/alerts?limit=20`, { signal:AbortSignal.timeout(3000) });
-      const data = await res.json();
-      if (data.alerts && data.alerts.length > 0) {
-        const TYPE_MAP = {
-          energy_drain:{icon:'⚡',type:'ENERGY DRAIN ATTACK',color:'var(--score-r)',sev:'CRITICAL',sc:'b-red',cat:'critical'},
-          fake_usdt:{icon:'🪙',type:'FAKE USDT CONTRACT',color:'var(--score-y)',sev:'CRITICAL',sc:'b-red',cat:'critical'},
-          freeze_abuse:{icon:'🔒',type:'FREEZE AUTHORITY ABUSE',color:'var(--score-y)',sev:'HIGH',sc:'b-yellow',cat:'high'},
-          permission_bypass:{icon:'🔑',type:'PERMISSION BYPASS',color:'var(--dim)',sev:'HIGH',sc:'b-yellow',cat:'high'},
-          address_poisoning:{icon:'📍',type:'ADDRESS POISONING',color:'var(--dim)',sev:'MEDIUM',sc:'b-dim',cat:'medium'},
-          sr_manipulation:{icon:'🗳️',type:'SR VOTE MANIPULATION',color:'var(--score-y)',sev:'HIGH',sc:'b-yellow',cat:'high'},
-          high_risk_agent:{icon:'🚨',type:'HIGH RISK AGENT',color:'var(--score-r)',sev:'CRITICAL',sc:'b-red',cat:'critical'},
-        };
-        alerts = data.alerts.map(a => {
-          const t = TYPE_MAP[a.alert_type] || {icon:'⚠️',type:a.alert_type,color:'var(--dim)',sev:'MEDIUM',sc:'b-dim',cat:'medium'};
-          const ago = Math.round((Date.now()/1000 - a.timestamp)/60);
-          return {...t, det:a.description, time:ago<1?'just now':ago+'m ago', id:a.alert_id};
-        });
-        renderFeed();
-        return;
+      const sRes = await fetch(`${ANUBIS}/risks/summary`, {signal:AbortSignal.timeout(3000)});
+      if (sRes.ok) {
+        const s = await sRes.json();
+        const el = id => document.getElementById(id);
+        el('critCount').textContent  = s.by_severity?.critical ?? el('critCount').textContent;
+        el('highCount').textContent  = s.by_severity?.high     ?? el('highCount').textContent;
+        el('blackCount').textContent = s.blacklisted_addresses ?? el('blackCount').textContent;
       }
     } catch(e) {}
-    renderFeed(); // use demo data
+
+    // Load alerts — try Anubis first, then backend, then demo
+    try {
+      const res = await fetch(`${ANUBIS}/sentinel/alerts?limit=20`, {signal:AbortSignal.timeout(3000)});
+      const data = await res.json();
+      if (data.alerts && data.alerts.length > 0) {
+        alerts = data.alerts.map(mapApiAlert);
+        renderFeed(); return;
+      }
+    } catch(e) {}
+
+    try {
+      const res = await fetch(`${API_BASE}/sentinel/alerts?limit=20`, {signal:AbortSignal.timeout(3000)});
+      const data = await res.json();
+      if (data.alerts && data.alerts.length > 0) {
+        alerts = data.alerts.map(mapApiAlert);
+        renderFeed(); return;
+      }
+    } catch(e) {}
+
+    renderFeed(); // demo data
   }
 
   const toggle = document.getElementById('themeToggle');

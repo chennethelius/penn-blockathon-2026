@@ -138,6 +138,61 @@
     .empty-icon { font-size: 38px; margin-bottom: 16px; opacity: 0.25; }
     .empty-text { font-size: 15px; margin-bottom: 6px; }
     .empty-sub { font-size: 13px; color: var(--muted); }
+
+    /* Monte Carlo panel */
+    .mc-panel {
+      margin-top: 18px;
+      background: rgba(13,2,18,0.75); backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.09); box-shadow: var(--shadow-md);
+      clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+      overflow: hidden; display: none;
+    }
+    .mc-panel.visible { display: block; }
+    .mc-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-bottom: 1px solid var(--border2);
+      background: rgba(255,255,255,0.02);
+    }
+    .mc-head-title { font-size: 12px; font-weight: 700; }
+    .mc-body { padding: 18px 20px; display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; }
+    @media (max-width: 700px) { .mc-body { grid-template-columns: repeat(3,1fr); } }
+    .mc-cell { text-align: center; }
+    .mc-val { font-size: 20px; font-weight: 900; font-family: monospace; }
+    .mc-lbl { font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .mc-stability { padding: 10px 20px 14px; font-size: 12px; color: var(--dim); border-top: 1px solid var(--border2); }
+
+    /* Token check panel */
+    .token-panel {
+      margin-top: 18px;
+      background: rgba(13,2,18,0.75); backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.09); box-shadow: var(--shadow-md);
+      clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+      overflow: hidden; display: none;
+    }
+    .token-panel.visible { display: block; }
+    .token-grid { padding: 18px 20px; display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    @media (max-width: 700px) { .token-grid { grid-template-columns: 1fr 1fr; } }
+    .token-cell { padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border2); }
+    .token-cell-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+    .token-cell-val { font-size: 14px; font-weight: 700; }
+
+    /* Drivers panel */
+    .driver-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 12px; }
+    .driver-item:last-child { border-bottom: none; }
+    .driver-bar-wrap { flex: 1; height: 3px; background: rgba(255,255,255,0.05); }
+    .driver-bar { height: 100%; background: var(--red); transition: width 0.8s ease; }
+    .driver-name { color: var(--dim); font-family: monospace; width: 180px; flex-shrink: 0; }
+    .driver-val { color: var(--muted); width: 48px; text-align: right; flex-shrink: 0; }
+
+    /* Tab row */
+    .tab-row { display: flex; gap: 6px; margin-bottom: 6px; }
+    .tab-btn {
+      background: var(--bg2); border: 1px solid var(--border2);
+      color: var(--dim); padding: 6px 14px; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+    }
+    .tab-btn.on { background: rgba(232,38,26,0.12); border-color: var(--border); color: var(--red); }
   </style>
 </head>
 <body>
@@ -176,8 +231,13 @@
     <h1 style="font-size:clamp(26px,4vw,42px);font-weight:900;letter-spacing:-0.03em;margin-bottom:8px;">Check any Tron wallet</h1>
     <p style="font-size:15px;color:var(--dim);margin-bottom:30px;">Composite trust score — on-chain behavior, ML risk, and community reputation.</p>
 
+    <div class="tab-row" style="margin-bottom:16px;">
+      <button class="tab-btn on" id="tabAgent" onclick="setTab('agent',this)">Agent Trust</button>
+      <button class="tab-btn" id="tabToken" onclick="setTab('token',this)">Token Check</button>
+    </div>
+
     <div class="search-bar">
-      <input class="search-input" id="addrInput" type="text" placeholder="Enter Tron wallet address (e.g. TGx7f3...)" />
+      <input class="search-input" id="addrInput" type="text" placeholder="Enter Tron wallet or token address (T...)" />
       <div class="btn-wrap"><button class="search-btn" onclick="lookup()">Analyze →</button></div>
     </div>
     <div class="demo-row">
@@ -246,6 +306,41 @@
         </div>
       </div>
     </div>
+
+    <!-- Monte Carlo panel -->
+    <div class="mc-panel" id="mcPanel">
+      <div class="mc-head">
+        <div class="mc-head-title">Anubis Monte Carlo · 10,000 Simulations</div>
+        <div class="live-dot" id="mcStability">—</div>
+      </div>
+      <div class="mc-body">
+        <div class="mc-cell"><div class="mc-val" id="mcP5">—</div><div class="mc-lbl">P5 (worst)</div></div>
+        <div class="mc-cell"><div class="mc-val" id="mcP25">—</div><div class="mc-lbl">P25</div></div>
+        <div class="mc-cell"><div class="mc-val" id="mcP50">—</div><div class="mc-lbl">P50 (median)</div></div>
+        <div class="mc-cell"><div class="mc-val" id="mcP75">—</div><div class="mc-lbl">P75</div></div>
+        <div class="mc-cell"><div class="mc-val" id="mcP95">—</div><div class="mc-lbl">P95 (best)</div></div>
+      </div>
+      <div class="mc-stability" id="mcInterpretation"></div>
+    </div>
+
+    <!-- Top Feature Drivers panel -->
+    <div class="mc-panel" id="driversPanel">
+      <div class="mc-head">
+        <div class="mc-head-title">Top Risk Drivers · Anubis XGBoost</div>
+        <span style="font-size:11px;color:var(--muted);">Feature importance × value</span>
+      </div>
+      <div style="padding:14px 20px;" id="driversBody"></div>
+    </div>
+
+    <!-- Token Check panel -->
+    <div class="token-panel" id="tokenPanel">
+      <div class="mc-head">
+        <div class="mc-head-title">Token Safety Analysis · Anubis ML</div>
+        <div class="live-dot" id="tokenVerdict">—</div>
+      </div>
+      <div class="token-grid" id="tokenGrid"></div>
+    </div>
+
   </div>
 </div>
 
@@ -259,7 +354,9 @@
 </footer>
 
 <script>
-  const API = 'http://localhost:8000/api/v1';
+  const API       = 'http://localhost:8000/api/v1';
+  const ANUBIS    = 'http://localhost:8001';
+  let currentTab  = 'agent';
 
   // Verdict band helpers (matches Anubis predictor exactly)
   function scoreColor(s){ return s>=80?'#22c55e':s>=60?'#3b82f6':s>=40?'#facc15':s>=20?'#f87171':'#e8261a'; }
@@ -295,6 +392,14 @@
     no_wash_trading:              ['#22c55e','No wash trading detected'],
   };
 
+  function setTab(tab, btn) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById('addrInput').placeholder =
+      tab === 'token' ? 'Enter TRC-20 token contract address (T...)' : 'Enter Tron wallet address (T...)';
+  }
+
   function loadDemo(addr, name, score, verdict, type, commSc, flags, breakdown) {
     document.getElementById('addrInput').value = addr;
     showResult({ address: addr, trustScore: score, verdict, breakdown,
@@ -306,46 +411,163 @@
     const addr = document.getElementById('addrInput').value.trim();
     if (!addr) return;
 
-    // Show loading state
+    // Reset panels
     document.getElementById('emptyState').style.display = 'none';
     document.getElementById('resultLayout').classList.remove('visible');
+    document.getElementById('mcPanel').classList.remove('visible');
+    document.getElementById('driversPanel').classList.remove('visible');
+    document.getElementById('tokenPanel').classList.remove('visible');
     document.getElementById('rName').textContent = 'Analyzing…';
     document.getElementById('rAddr').textContent = addr;
     document.getElementById('rScore').textContent = '…';
     document.getElementById('resultLayout').classList.add('visible');
 
+    if (currentTab === 'token') {
+      await lookupToken(addr);
+      return;
+    }
+
+    // Try Anubis full profile first (port 8001), then fall back to backend (port 8000)
+    try {
+      const [anubisRes, spRes] = await Promise.all([
+        fetch(`${ANUBIS}/anubis/${addr}`, { signal: AbortSignal.timeout(7000) }),
+        fetch(`${API}/sunpoints?address=${addr}`, { signal: AbortSignal.timeout(4000) }).catch(() => null),
+      ]);
+      if (!anubisRes.ok) throw new Error('anubis error');
+      const full = await anubisRes.json();
+      const sp   = spRes?.ok ? await spRes.json() : null;
+
+      // Map Anubis response → showResult format
+      const pred = full.prediction || {};
+      const ml   = pred.ml_score ?? 50;
+      const bd   = pred.breakdown || {};
+      showResult({
+        address:     full.address,
+        trustScore:  Math.round(ml),
+        verdict:     pred.verdict || 'UNKNOWN',
+        riskOutlook: ml >= 60 ? 'stable' : ml >= 40 ? 'elevated' : 'critical',
+        breakdown:   { behavioral: bd.behavioral, tokenHealth: bd.token_health, community: bd.community },
+        flags:       pred.risk_flags || [],
+        txCount:     null,
+        balanceTrx:  null,
+        isBlacklisted: full.is_blacklisted,
+      }, sp);
+
+      // Monte Carlo
+      if (full.monte_carlo) {
+        const mc = full.monte_carlo;
+        const p  = mc.percentiles || {};
+        const color = scoreColor(Math.round(mc.mean_score));
+        document.getElementById('mcP5').textContent  = Math.round(p.p5  ?? 0);
+        document.getElementById('mcP25').textContent = Math.round(p.p25 ?? 0);
+        document.getElementById('mcP50').textContent = Math.round(p.p50 ?? 0);
+        document.getElementById('mcP75').textContent = Math.round(p.p75 ?? 0);
+        document.getElementById('mcP95').textContent = Math.round(p.p95 ?? 0);
+        ['mcP5','mcP25','mcP50','mcP75','mcP95'].forEach(id => document.getElementById(id).style.color = color);
+        document.getElementById('mcStability').textContent = (mc.stability_rating || '—').toUpperCase();
+        document.getElementById('mcInterpretation').textContent = mc.interpretation || '';
+        document.getElementById('mcPanel').classList.add('visible');
+      }
+
+      // Top drivers
+      if (pred.top_drivers && pred.top_drivers.length) {
+        const maxImp = Math.max(...pred.top_drivers.map(d => d.importance));
+        document.getElementById('driversBody').innerHTML = pred.top_drivers.map(d => `
+          <div class="driver-item">
+            <div class="driver-name">${d.feature.replace(/_/g,' ')}</div>
+            <div class="driver-bar-wrap"><div class="driver-bar" style="width:${maxImp>0?(d.importance/maxImp*100):0}%"></div></div>
+            <div class="driver-val">${d.value.toFixed(3)}</div>
+          </div>`).join('');
+        document.getElementById('driversPanel').classList.add('visible');
+      }
+      return;
+
+    } catch(e) {}
+
+    // Fallback: backend API
     try {
       const res = await fetch(`${API}/agent/${addr}`, { signal: AbortSignal.timeout(5000) });
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
-      // Fetch sun points in parallel
       let sp = null;
       try { const sr = await fetch(`${API}/sunpoints?address=${addr}`); sp = await sr.json(); } catch(e){}
       showResult(data, sp);
+      return;
+    } catch(e) {}
+
+    // Demo fallback
+    const demos = {
+      'TGoodAgent111': { address:'TGoodAgent111', trustScore:88, verdict:'TRUSTED', riskOutlook:'stable',
+        breakdown:{behavioral:91,tokenHealth:84,community:88}, flags:['justlend_repayment_rate_high','no_wash_trading'],
+        _name:'DeFiBot Alpha', _type:'DeFi Agent', _commSc:91 },
+      'TReputable222': { address:'TReputable222', trustScore:63, verdict:'REPUTABLE', riskOutlook:'moderate',
+        breakdown:{behavioral:65,tokenHealth:60,community:62}, flags:['new_wallet'],
+        _name:'TradeBot-7', _type:'Trading Bot', _commSc:58 },
+      'TRiskyWallet22': { address:'TRiskyWallet22', trustScore:28, verdict:'RISKY', riskOutlook:'critical',
+        breakdown:{behavioral:26,tokenHealth:30,community:28}, flags:['wash_trading_detected','new_wallet','poor_repayment_history'],
+        _name:'SuspiciousBot', _type:'Unknown', _commSc:0 },
+      'TBlacklist333': { address:'TBlacklist333', trustScore:0, verdict:'BLACKLISTED', riskOutlook:'critical',
+        breakdown:{behavioral:0,tokenHealth:0,community:0}, flags:['energy_drain_attacker','phishing_association','address_poisoning'],
+        _name:'ScamBot-X', _type:'Malicious', _commSc:0 },
+    };
+    const d = demos[addr];
+    if (d) { showResult(d); return; }
+    const s = Math.floor(Math.random()*50)+25;
+    showResult({ address:addr, trustScore:s, verdict:s>=60?'REPUTABLE':'CAUTION', riskOutlook:'elevated',
+      breakdown:{behavioral:s,tokenHealth:s,community:s}, flags:['trongrid_unreachable'],
+      _name:'Unknown Agent', _type:'Unknown', _commSc:0 });
+  }
+
+  async function lookupToken(addr) {
+    const panel = document.getElementById('tokenPanel');
+    try {
+      const res = await fetch(`${ANUBIS}/predict/token`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ token_address: addr }),
+        signal: AbortSignal.timeout(7000),
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const ts   = data.token_specific || {};
+      const ml   = Math.round(data.ml_score ?? 50);
+      const rug  = ((data.rug_probability ?? 0.5) * 100).toFixed(1);
+      const color = scoreColor(ml);
+      document.getElementById('tokenVerdict').textContent = data.verdict || '—';
+      document.getElementById('rName').textContent = 'Token Analysis';
+      document.getElementById('rScore').textContent = ml;
+      document.getElementById('rScore').style.color = color;
+      document.getElementById('rVerdict').textContent = data.verdict || '—';
+      document.getElementById('rVerdict').style.color = color;
+      document.getElementById('scFill').style.stroke = color;
+      document.getElementById('scFill').style.strokeDashoffset = 251 - (ml/100)*251;
+      document.getElementById('rAddr').textContent = addr;
+      document.getElementById('rBadges').innerHTML =
+        `<span class="badge ${scoreBadge(ml)}">${data.verdict||'—'}</span>` +
+        `<span class="badge b-dim">TRC-20 Token</span>`;
+      document.getElementById('rBars').innerHTML = `
+        <div class="bar-row"><div class="bar-label"><span>Token Health Score</span><span>${ml}</span></div><div class="bar-track"><div class="bar-fill" style="width:${ml}%;background:${color}"></div></div></div>
+        <div class="bar-row"><div class="bar-label"><span>Rug Probability</span><span>${rug}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${rug}%;background:var(--score-r)"></div></div></div>`;
+      document.getElementById('rFlags').innerHTML = (data.risk_flags||[]).map(f => {
+        const [fc,ft] = FLAG_LABELS[f] || ['#8a7898', f.replace(/_/g,' ')];
+        return `<div class="flag-item"><div class="flag-dot" style="background:${fc}"></div>${ft}</div>`;
+      }).join('') || '<div style="font-size:12px;color:var(--muted)">No flags</div>';
+      document.getElementById('statRows').innerHTML = `
+        <div class="stat-row"><span class="stat-label">ML score</span><span class="stat-val" style="color:${color}">${ml}/100</span></div>
+        <div class="stat-row"><span class="stat-label">Rug probability</span><span class="stat-val ${ml<50?'bad':'good'}">${rug}%</span></div>`;
+      document.getElementById('tokenGrid').innerHTML = [
+        ['Honeypot Risk',   ts.honeypot_risk    ? '⚠️ YES' : '✓ No',   ts.honeypot_risk    ? 'var(--score-r)' : 'var(--score-g)'],
+        ['Freeze Authority',ts.freeze_authority ? '⚠️ Active' : '✓ None', ts.freeze_authority ? 'var(--score-r)' : 'var(--score-g)'],
+        ['Mint Risk',       ts.mint_risk        ? '⚠️ YES' : '✓ No',   ts.mint_risk        ? 'var(--score-r)' : 'var(--score-g)'],
+        ['Concentrated',    ts.concentrated_ownership ? '⚠️ YES' : '✓ No', ts.concentrated_ownership ? 'var(--score-y)' : 'var(--score-g)'],
+        ['Audit Level',     (ts.audit_level||'none').toUpperCase(), ts.audit_level==='professional'?'var(--score-g)':ts.audit_level==='community'?'var(--score-y)':'var(--muted)'],
+        ['Verdict',         data.verdict||'—',  color],
+      ].map(([l,v,c]) => `<div class="token-cell"><div class="token-cell-label">${l}</div><div class="token-cell-val" style="color:${c}">${v}</div></div>`).join('');
+      panel.classList.add('visible');
     } catch(e) {
-      // Fallback to demo map or random
-      const demos = {
-        'TGoodAgent111': { address:'TGoodAgent111', trustScore:88, verdict:'trusted', riskOutlook:'stable',
-          breakdown:{behavioral:91,tokenHealth:84,community:88}, flags:['justlend_repayment_rate_high','no_wash_trading'],
-          _name:'DeFiBot Alpha', _type:'DeFi Agent', _commSc:91 },
-        'TReputable222': { address:'TReputable222', trustScore:63, verdict:'proceed', riskOutlook:'moderate',
-          breakdown:{behavioral:65,tokenHealth:60,community:62}, flags:['new_wallet'],
-          _name:'TradeBot-7', _type:'Trading Bot', _commSc:58 },
-        'TRiskyWallet22': { address:'TRiskyWallet22', trustScore:28, verdict:'avoid', riskOutlook:'critical',
-          breakdown:{behavioral:26,tokenHealth:30,community:28}, flags:['wash_trading_detected','new_wallet','poor_repayment_history'],
-          _name:'SuspiciousBot', _type:'Unknown', _commSc:0 },
-        'TBlacklist333': { address:'TBlacklist333', trustScore:0, verdict:'avoid', riskOutlook:'critical',
-          breakdown:{behavioral:0,tokenHealth:0,community:0}, flags:['energy_drain_attacker','phishing_association','address_poisoning'],
-          _name:'ScamBot-X', _type:'Malicious', _commSc:0 },
-      };
-      const d = demos[addr];
-      if (d) { showResult(d); }
-      else {
-        const s = Math.floor(Math.random()*50)+25;
-        showResult({ address:addr, trustScore:s, verdict:s>=60?'proceed':'caution', riskOutlook:'elevated',
-          breakdown:{behavioral:s,tokenHealth:s,community:s}, flags:['trongrid_unreachable'],
-          _name:'Unknown Agent', _type:'Unknown', _commSc:0 });
-      }
+      document.getElementById('rName').textContent = 'Token Check (API offline)';
+      document.getElementById('rAddr').textContent = addr;
+      document.getElementById('rScore').textContent = '?';
     }
   }
 
