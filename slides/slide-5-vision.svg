@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="1920" height="1080" fill="#06000a"/>
+  <rect x="0" y="0" width="1920" height="3" fill="#e8261a" opacity="0.6"/>
+
+  <text x="100" y="80" fill="#e8261a" font-size="28" font-weight="900" letter-spacing="4">KAIROS</text>
+
+  <text x="100" y="220" fill="#fff" font-size="64" font-weight="900" letter-spacing="-2">The Vision</text>
+  <text x="100" y="280" fill="#888" font-size="24">Where we're going</text>
+
+  <!-- Today -->
+  <rect x="100" y="330" width="820" height="300" rx="10" fill="rgba(232,38,26,0.04)" stroke="rgba(232,38,26,0.15)" stroke-width="1.5"/>
+  <text x="140" y="375" fill="#e8261a" font-size="14" font-weight="800" letter-spacing="3">TODAY</text>
+  <text x="140" y="415" fill="#fff" font-size="24" font-weight="800">AI agents move money blindly.</text>
+  <text x="140" y="465" fill="#aaa" font-size="17">No way to verify a counterparty before transacting.</text>
+  <text x="140" y="495" fill="#aaa" font-size="17">No reputation system for autonomous agents.</text>
+  <text x="140" y="525" fill="#aaa" font-size="17">No guardrails when the AI is compromised.</text>
+  <text x="140" y="575" fill="#f87171" font-size="20" font-weight="700">$7.9T flows through Tron annually with zero trust layer.</text>
+
+  <!-- Tomorrow -->
+  <rect x="980" y="330" width="820" height="300" rx="10" fill="rgba(34,197,94,0.04)" stroke="rgba(34,197,94,0.15)" stroke-width="1.5"/>
+  <text x="1020" y="375" fill="#22c55e" font-size="14" font-weight="800" letter-spacing="3">WITH KAIROS</text>
+  <text x="1020" y="415" fill="#fff" font-size="24" font-weight="800">Every payment is trust-gated.</text>
+  <text x="1020" y="465" fill="#aaa" font-size="17">ML scores every wallet from real on-chain behavior.</text>
+  <text x="1020" y="495" fill="#aaa" font-size="17">Soul-bound identity ties reputation to addresses.</text>
+  <text x="1020" y="525" fill="#aaa" font-size="17">Protocol-level locks prevent unauthorized transfers.</text>
+  <text x="1020" y="575" fill="#22c55e" font-size="20" font-weight="700">One API. One config line. Trust built in.</text>
+
+  <!-- Business model -->
+  <text x="960" y="720" text-anchor="middle" fill="#444" font-size="14" letter-spacing="4" font-weight="600">BUSINESS MODEL</text>
+
+  <rect x="100" y="750" width="400" height="80" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="300" y="785" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">x402 Pay-per-call</text>
+  <text x="300" y="810" text-anchor="middle" fill="#888" font-size="14">$0.02 per trust check on Tron rails</text>
+
+  <rect x="540" y="750" width="400" height="80" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="740" y="785" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">Enterprise API</text>
+  <text x="740" y="810" text-anchor="middle" fill="#888" font-size="14">Bulk scoring for exchanges and DeFi protocols</text>
+
+  <rect x="980" y="750" width="400" height="80" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="1180" y="785" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">Passport NFT Minting</text>
+  <text x="1180" y="810" text-anchor="middle" fill="#888" font-size="14">$1 per agent registration on-chain</text>
+
+  <rect x="1420" y="750" width="400" height="80" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="1620" y="785" text-anchor="middle" fill="#fff" font-size="18" font-weight="700">Trust Gate Licensing</text>
+  <text x="1620" y="810" text-anchor="middle" fill="#888" font-size="14">DeFi protocols pay to use TrustGate</text>
+
+  <!-- Bottom line -->
+  <text x="960" y="920" text-anchor="middle" fill="#fff" font-size="26" font-weight="800">Kairos becomes the credit score for the agent economy.</text>
+  <text x="960" y="960" text-anchor="middle" fill="#666" font-size="16">Every agent needs trust. Every transaction needs verification. We're the infrastructure.</text>
+</svg>

@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1000" height="600" fill="#06000a" rx="12"/>
+
+  <!-- Title -->
+  <text x="500" y="40" text-anchor="middle" fill="#e8261a" font-size="14" font-weight="800" letter-spacing="3">KAIROS ARCHITECTURE</text>
+
+  <!-- TOP ROW: Input Sources -->
+  <!-- Arena -->
+  <rect x="60" y="70" width="160" height="60" rx="6" fill="none" stroke="#e8261a" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="140" y="97" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Arena Chat</text>
+  <text x="140" y="114" text-anchor="middle" fill="#888" font-size="10">Groq LLM + Tools</text>
+
+  <!-- MCP -->
+  <rect x="260" y="70" width="160" height="60" rx="6" fill="none" stroke="#e8261a" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="340" y="97" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">MCP Server</text>
+  <text x="340" y="114" text-anchor="middle" fill="#888" font-size="10">npm: kairos-xyz-mcp</text>
+
+  <!-- Guard SDK -->
+  <rect x="460" y="70" width="160" height="60" rx="6" fill="none" stroke="#e8261a" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="540" y="97" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">Guard SDK</text>
+  <text x="540" y="114" text-anchor="middle" fill="#888" font-size="10">Python wrapper</text>
+
+  <!-- x402 -->
+  <rect x="660" y="70" width="160" height="60" rx="6" fill="none" stroke="#e8261a" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="740" y="97" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">x402 API</text>
+  <text x="740" y="114" text-anchor="middle" fill="#888" font-size="10">Pay-per-call TRX</text>
+
+  <!-- Arrows down to Gateway -->
+  <line x1="140" y1="130" x2="140" y2="180" stroke="#e8261a" stroke-width="1" opacity="0.5"/>
+  <line x1="340" y1="130" x2="340" y2="180" stroke="#e8261a" stroke-width="1" opacity="0.5"/>
+  <line x1="540" y1="130" x2="540" y2="180" stroke="#e8261a" stroke-width="1" opacity="0.5"/>
+  <line x1="740" y1="130" x2="740" y2="180" stroke="#e8261a" stroke-width="1" opacity="0.5"/>
+
+  <!-- GATEWAY -->
+  <rect x="60" y="180" width="760" height="70" rx="8" fill="rgba(232,38,26,0.08)" stroke="#e8261a" stroke-width="2"/>
+  <text x="440" y="210" text-anchor="middle" fill="#fff" font-size="16" font-weight="800">FastAPI Gateway</text>
+  <text x="440" y="232" text-anchor="middle" fill="#888" font-size="11">trust  ·  wallet  ·  arena  ·  passport  ·  commercial  ·  x402</text>
+
+  <!-- Arrows down -->
+  <line x1="280" y1="250" x2="280" y2="310" stroke="#22c55e" stroke-width="1.5" opacity="0.6"/>
+  <line x1="600" y1="250" x2="600" y2="310" stroke="#22c55e" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- BOTTOM ROW: Anubis + Tron -->
+  <!-- Anubis -->
+  <rect x="80" y="310" width="360" height="120" rx="8" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+  <text x="260" y="340" text-anchor="middle" fill="#fff" font-size="14" font-weight="800">Anubis ML Engine</text>
+  <text x="260" y="362" text-anchor="middle" fill="#888" font-size="11">XGBoost · 50 on-chain features</text>
+
+  <rect x="100" y="380" width="90" height="36" rx="4" fill="rgba(34,197,94,0.1)" stroke="rgba(34,197,94,0.3)" stroke-width="1"/>
+  <text x="145" y="403" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="600">Behavioral</text>
+
+  <rect x="200" y="380" width="90" height="36" rx="4" fill="rgba(250,204,21,0.1)" stroke="rgba(250,204,21,0.3)" stroke-width="1"/>
+  <text x="245" y="403" text-anchor="middle" fill="#facc15" font-size="10" font-weight="600">Token Health</text>
+
+  <rect x="300" y="380" width="120" height="36" rx="4" fill="rgba(248,113,113,0.1)" stroke="rgba(248,113,113,0.3)" stroke-width="1"/>
+  <text x="360" y="403" text-anchor="middle" fill="#f87171" font-size="10" font-weight="600">Threat Detection</text>
+
+  <!-- Arrow from Anubis to Tron -->
+  <line x1="440" y1="370" x2="480" y2="370" stroke="#facc15" stroke-width="1.5" opacity="0.5" stroke-dasharray="4"/>
+  <text x="460" y="363" text-anchor="middle" fill="#facc15" font-size="9">scores</text>
+
+  <!-- Tron Contracts -->
+  <rect x="480" y="310" width="420" height="200" rx="8" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+  <text x="690" y="340" text-anchor="middle" fill="#fff" font-size="14" font-weight="800">Tron Nile Testnet</text>
+
+  <rect x="500" y="358" width="175" height="32" rx="4" fill="rgba(232,38,26,0.08)" stroke="rgba(232,38,26,0.2)" stroke-width="1"/>
+  <text x="587" y="379" text-anchor="middle" fill="#e8261a" font-size="11" font-weight="700">TronTrustOracle</text>
+
+  <rect x="700" y="358" width="175" height="32" rx="4" fill="rgba(232,38,26,0.08)" stroke="rgba(232,38,26,0.2)" stroke-width="1"/>
+  <text x="787" y="379" text-anchor="middle" fill="#e8261a" font-size="11" font-weight="700">TrustPassport NFT</text>
+
+  <rect x="500" y="400" width="175" height="32" rx="4" fill="rgba(232,38,26,0.08)" stroke="rgba(232,38,26,0.2)" stroke-width="1"/>
+  <text x="587" y="421" text-anchor="middle" fill="#e8261a" font-size="11" font-weight="700">TrustWallet</text>
+
+  <rect x="700" y="400" width="175" height="32" rx="4" fill="rgba(232,38,26,0.08)" stroke="rgba(232,38,26,0.2)" stroke-width="1"/>
+  <text x="787" y="421" text-anchor="middle" fill="#e8261a" font-size="11" font-weight="700">TrustGateContract</text>
+
+  <rect x="500" y="442" width="175" height="32" rx="4" fill="rgba(232,38,26,0.08)" stroke="rgba(232,38,26,0.2)" stroke-width="1"/>
+  <text x="587" y="463" text-anchor="middle" fill="#e8261a" font-size="11" font-weight="700">CommercialTrust</text>
+
+  <rect x="700" y="442" width="175" height="32" rx="4" fill="rgba(232,38,26,0.08)" stroke="rgba(232,38,26,0.2)" stroke-width="1"/>
+  <text x="787" y="463" text-anchor="middle" fill="#e8261a" font-size="11" font-weight="700">TrustEscrow</text>
+
+  <!-- Security box -->
+  <rect x="500" y="486" width="375" height="30" rx="4" fill="rgba(34,197,94,0.06)" stroke="rgba(34,197,94,0.2)" stroke-width="1"/>
+  <text x="687" y="506" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="600">Account Permission Management — protocol-level agent locking</text>
+
+  <!-- Flow labels -->
+  <text x="500" y="565" text-anchor="middle" fill="#666" font-size="11">Agent deploys → Anubis scores → Oracle stores → TrustWallet enforces → x402 monetizes</text>
+</svg>

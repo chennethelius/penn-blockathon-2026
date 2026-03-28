@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="1920" height="1080" fill="#06000a"/>
+  <rect x="0" y="0" width="1920" height="3" fill="#e8261a" opacity="0.6"/>
+
+  <text x="100" y="80" fill="#e8261a" font-size="28" font-weight="900" letter-spacing="4">KAIROS</text>
+
+  <!-- Center content -->
+  <text x="960" y="280" text-anchor="middle" fill="#fff" font-size="72" font-weight="900" letter-spacing="-3">Trust infrastructure</text>
+  <text x="960" y="360" text-anchor="middle" fill="#fff" font-size="72" font-weight="900" letter-spacing="-3">for the agent economy.</text>
+
+  <!-- Links grid -->
+  <rect x="260" y="460" width="420" height="70" rx="8" fill="rgba(232,38,26,0.06)" stroke="rgba(232,38,26,0.2)" stroke-width="1.5"/>
+  <text x="290" y="500" fill="#e8261a" font-size="14" font-weight="800">LIVE SITE</text>
+  <text x="420" y="500" fill="#fff" font-size="16" font-weight="600">kairosxyz.vercel.app</text>
+
+  <rect x="720" y="460" width="420" height="70" rx="8" fill="rgba(232,38,26,0.06)" stroke="rgba(232,38,26,0.2)" stroke-width="1.5"/>
+  <text x="750" y="500" fill="#e8261a" font-size="14" font-weight="800">ARENA</text>
+  <text x="850" y="500" fill="#fff" font-size="16" font-weight="600">kairosxyz.vercel.app/arena.html</text>
+
+  <rect x="1180" y="460" width="420" height="70" rx="8" fill="rgba(232,38,26,0.06)" stroke="rgba(232,38,26,0.2)" stroke-width="1.5"/>
+  <text x="1210" y="500" fill="#e8261a" font-size="14" font-weight="800">GITHUB</text>
+  <text x="1340" y="500" fill="#fff" font-size="16" font-weight="600">chennethelius/penn-blockathon-2026</text>
+
+  <!-- NPX install prominent -->
+  <rect x="360" y="590" width="1200" height="100" rx="10" fill="rgba(13,2,18,0.95)" stroke="#e8261a" stroke-width="2"/>
+  <text x="420" y="650" fill="#22c55e" font-size="28" font-weight="700">$</text>
+  <text x="460" y="650" fill="#ccc" font-size="28" font-weight="600">npx</text>
+  <text x="545" y="650" fill="#e8261a" font-size="28" font-weight="800">kairos-xyz-mcp</text>
+  <text x="860" y="650" fill="#555" font-size="18" font-weight="400">&#8594; 8 tools, any MCP agent, zero setup</text>
+
+  <!-- Tech stack summary -->
+  <text x="960" y="790" text-anchor="middle" fill="#555" font-size="16" font-weight="600">6 Solidity contracts  ·  XGBoost ML  ·  x402 micropayments  ·  MCP on npm  ·  Tron Nile testnet</text>
+
+  <!-- Bottom -->
+  <text x="960" y="920" text-anchor="middle" fill="#333" font-size="14">All open source  ·  All on-chain  ·  All verifiable on TronScan</text>
+  <text x="960" y="960" text-anchor="middle" fill="#444" font-size="16" font-weight="600">PennBlockathon 2026</text>
+</svg>

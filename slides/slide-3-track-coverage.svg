@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="1920" height="1080" fill="#06000a"/>
+  <rect x="0" y="0" width="1920" height="3" fill="#e8261a" opacity="0.6"/>
+
+  <text x="100" y="80" fill="#e8261a" font-size="28" font-weight="900" letter-spacing="4">KAIROS</text>
+
+  <text x="100" y="200" fill="#fff" font-size="56" font-weight="900" letter-spacing="-2">Track Coverage</text>
+
+  <!-- AI & Agentic Commerce -->
+  <text x="100" y="300" fill="#e8261a" font-size="14" font-weight="800" letter-spacing="3">AI &amp; AGENTIC COMMERCE</text>
+
+  <!-- Table rows -->
+  <rect x="100" y="320" width="800" height="44" rx="4" fill="rgba(34,197,94,0.06)"/>
+  <text x="120" y="348" fill="#22c55e" font-size="16" font-weight="700">&#10003;</text>
+  <text x="150" y="348" fill="#fff" font-size="15" font-weight="600">x402 payments on TRON</text>
+  <text x="480" y="348" fill="#888" font-size="14">Real 402 &#8594; TRX payment &#8594; data returned</text>
+
+  <rect x="100" y="370" width="800" height="44" rx="4" fill="rgba(34,197,94,0.04)"/>
+  <text x="120" y="398" fill="#22c55e" font-size="16" font-weight="700">&#10003;</text>
+  <text x="150" y="398" fill="#fff" font-size="15" font-weight="600">Discovery + trust beyond ERC-8004</text>
+  <text x="480" y="398" fill="#888" font-size="14">Oracle + Passport NFT + ML scoring</text>
+
+  <rect x="100" y="420" width="800" height="44" rx="4" fill="rgba(34,197,94,0.06)"/>
+  <text x="120" y="448" fill="#22c55e" font-size="16" font-weight="700">&#10003;</text>
+  <text x="150" y="448" fill="#fff" font-size="15" font-weight="600">Security via Account Permission Mgmt</text>
+  <text x="480" y="448" fill="#888" font-size="14">Protocol-level agent wallet locking</text>
+
+  <rect x="100" y="470" width="800" height="44" rx="4" fill="rgba(34,197,94,0.04)"/>
+  <text x="120" y="498" fill="#22c55e" font-size="16" font-weight="700">&#10003;</text>
+  <text x="150" y="498" fill="#fff" font-size="15" font-weight="600">OPSEC dev tooling</text>
+  <text x="480" y="498" fill="#888" font-size="14">Anubis detects wash trading, honeypots, phishing</text>
+
+  <rect x="100" y="520" width="800" height="44" rx="4" fill="rgba(34,197,94,0.06)"/>
+  <text x="120" y="548" fill="#22c55e" font-size="16" font-weight="700">&#10003;</text>
+  <text x="150" y="548" fill="#fff" font-size="15" font-weight="600">Micro-transaction enablement</text>
+  <text x="480" y="548" fill="#888" font-size="14">Pay-per-call, on-chain receipts, metering</text>
+
+  <rect x="100" y="570" width="800" height="44" rx="4" fill="rgba(34,197,94,0.04)"/>
+  <text x="120" y="598" fill="#22c55e" font-size="16" font-weight="700">&#10003;</text>
+  <text x="150" y="598" fill="#fff" font-size="15" font-weight="600">Standards alignment</text>
+  <text x="480" y="598" fill="#888" font-size="14">MCP protocol + x402 protocol</text>
+
+  <!-- Payments & DeFi -->
+  <text x="1020" y="300" fill="#e8261a" font-size="14" font-weight="800" letter-spacing="3">PAYMENTS &amp; DEFI</text>
+
+  <rect x="1020" y="320" width="780" height="44" rx="4" fill="rgba(34,197,94,0.06)"/>
+  <text x="1040" y="348" fill="#22c55e" font-size="16" font-weight="700">&#10003;</text>
+  <text x="1070" y="348" fill="#fff" font-size="15" font-weight="600">Two roles</text>
+  <text x="1350" y="348" fill="#888" font-size="14">Business operator + AI agents</text>
+
+  <rect x="1020" y="370" width="780" height="44" rx="4" fill="rgba(34,197,94,0.04)"/>
+  <text x="1040" y="398" fill="#22c55e" font-size="16" font-weight="700">&#10003;</text>
+  <text x="1070" y="398" fill="#fff" font-size="15" font-weight="600">Setup / onboarding</text>
+  <text x="1350" y="398" fill="#888" font-size="14">Deploy agent via chat or MCP</text>
+
+  <rect x="1020" y="420" width="780" height="44" rx="4" fill="rgba(34,197,94,0.06)"/>
+  <text x="1040" y="448" fill="#22c55e" font-size="16" font-weight="700">&#10003;</text>
+  <text x="1070" y="448" fill="#fff" font-size="15" font-weight="600">Payment action</text>
+  <text x="1350" y="448" fill="#888" font-size="14">Trust-gated TRX send via TrustWallet</text>
+
+  <rect x="1020" y="470" width="780" height="44" rx="4" fill="rgba(34,197,94,0.04)"/>
+  <text x="1040" y="498" fill="#22c55e" font-size="16" font-weight="700">&#10003;</text>
+  <text x="1070" y="498" fill="#fff" font-size="15" font-weight="600">Verifiable outcome</text>
+  <text x="1350" y="498" fill="#888" font-size="14">TronScan tx hash for every action</text>
+
+  <rect x="1020" y="520" width="780" height="44" rx="4" fill="rgba(34,197,94,0.06)"/>
+  <text x="1040" y="548" fill="#22c55e" font-size="16" font-weight="700">&#10003;</text>
+  <text x="1070" y="548" fill="#fff" font-size="15" font-weight="600">Fee / failure UX</text>
+  <text x="1350" y="548" fill="#888" font-size="14">Clear blocked/approved messages + reason</text>
+
+  <rect x="1020" y="570" width="780" height="44" rx="4" fill="rgba(34,197,94,0.04)"/>
+  <text x="1040" y="598" fill="#22c55e" font-size="16" font-weight="700">&#10003;</text>
+  <text x="1070" y="598" fill="#fff" font-size="15" font-weight="600">PSP tooling</text>
+  <text x="1350" y="598" fill="#888" font-size="14">Trust-as-a-service for payment agents</text>
+
+  <!-- Bottom: the pitch -->
+  <rect x="100" y="700" width="1720" height="120" rx="10" fill="rgba(232,38,26,0.04)" stroke="rgba(232,38,26,0.15)" stroke-width="1"/>
+  <text x="960" y="750" text-anchor="middle" fill="#fff" font-size="28" font-weight="800">Built for businesses running AI payment agents.</text>
+  <text x="960" y="790" text-anchor="middle" fill="#888" font-size="18">Deploy an agent. Set a trust policy. The contracts handle the rest.</text>
+</svg>

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="1920" height="1080" fill="#06000a"/>
+  <rect x="0" y="0" width="1920" height="3" fill="#e8261a" opacity="0.6"/>
+
+  <!-- Logo -->
+  <text x="100" y="80" fill="#e8261a" font-size="28" font-weight="900" letter-spacing="4">KAIROS</text>
+  <text x="265" y="80" fill="#555" font-size="16" font-weight="400">PennBlockathon 2026</text>
+
+  <!-- Title -->
+  <text x="100" y="220" fill="#fff" font-size="64" font-weight="900" letter-spacing="-2">What We Built</text>
+  <text x="100" y="280" fill="#888" font-size="24">Trust infrastructure for AI agents on Tron</text>
+
+  <!-- 6 feature cards in 2x3 grid -->
+  <!-- Row 1 -->
+  <rect x="100" y="340" width="520" height="100" rx="8" fill="rgba(232,38,26,0.06)" stroke="rgba(232,38,26,0.2)" stroke-width="1.5"/>
+  <text x="140" y="382" fill="#e8261a" font-size="32" font-weight="900">6</text>
+  <text x="180" y="375" fill="#fff" font-size="20" font-weight="700">Smart Contracts</text>
+  <text x="180" y="405" fill="#888" font-size="15">Oracle, Passport NFT, TrustWallet, Gate, Escrow, Commercial</text>
+
+  <rect x="660" y="340" width="520" height="100" rx="8" fill="rgba(232,38,26,0.06)" stroke="rgba(232,38,26,0.2)" stroke-width="1.5"/>
+  <text x="700" y="382" fill="#e8261a" font-size="32" font-weight="900">50</text>
+  <text x="755" y="375" fill="#fff" font-size="20" font-weight="700">On-Chain Features</text>
+  <text x="755" y="405" fill="#888" font-size="15">XGBoost ML engine (Anubis) trained on real Tron data</text>
+
+  <rect x="1220" y="340" width="520" height="100" rx="8" fill="rgba(232,38,26,0.06)" stroke="rgba(232,38,26,0.2)" stroke-width="1.5"/>
+  <text x="1260" y="382" fill="#e8261a" font-size="28" font-weight="900">x402</text>
+  <text x="1330" y="375" fill="#fff" font-size="20" font-weight="700">Micropayments</text>
+  <text x="1330" y="405" fill="#888" font-size="15">Pay-per-call API with real TRX settlement on Tron</text>
+
+  <!-- Row 2 -->
+  <rect x="100" y="480" width="520" height="100" rx="8" fill="rgba(232,38,26,0.06)" stroke="rgba(232,38,26,0.2)" stroke-width="1.5"/>
+  <text x="140" y="522" fill="#e8261a" font-size="28" font-weight="900">MCP</text>
+  <text x="210" y="515" fill="#fff" font-size="20" font-weight="700">Server on npm</text>
+  <text x="210" y="545" fill="#888" font-size="15">npx kairos-xyz-mcp — 8 tools, any AI agent connects</text>
+
+  <rect x="660" y="480" width="520" height="100" rx="8" fill="rgba(232,38,26,0.06)" stroke="rgba(232,38,26,0.2)" stroke-width="1.5"/>
+  <text x="700" y="522" fill="#e8261a" font-size="28" font-weight="900">NLP</text>
+  <text x="768" y="515" fill="#fff" font-size="20" font-weight="700">Arena</text>
+  <text x="768" y="545" fill="#888" font-size="15">Natural language commands via Groq LLM (Llama 3.3 70B)</text>
+
+  <rect x="1220" y="480" width="520" height="100" rx="8" fill="rgba(232,38,26,0.06)" stroke="rgba(232,38,26,0.2)" stroke-width="1.5"/>
+  <text x="1260" y="522" fill="#22c55e" font-size="24" font-weight="900">&#x1F512;</text>
+  <text x="1300" y="515" fill="#fff" font-size="20" font-weight="700">Protocol Security</text>
+  <text x="1300" y="545" fill="#888" font-size="15">Tron Account Permission Management — agent wallet locking</text>
+
+  <!-- Bottom flow -->
+  <text x="960" y="680" text-anchor="middle" fill="#444" font-size="14" letter-spacing="6" font-weight="600">THE FLOW</text>
+
+  <rect x="100" y="720" width="200" height="50" rx="25" fill="rgba(232,38,26,0.1)" stroke="#e8261a" stroke-width="1"/>
+  <text x="200" y="751" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">Agent Deploys</text>
+
+  <line x1="300" y1="745" x2="370" y2="745" stroke="#e8261a" stroke-width="1.5" opacity="0.4"/>
+  <polygon points="370,740 380,745 370,750" fill="#e8261a" opacity="0.4"/>
+
+  <rect x="380" y="720" width="200" height="50" rx="25" fill="rgba(250,204,21,0.08)" stroke="#facc15" stroke-width="1"/>
+  <text x="480" y="751" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">Anubis Scores</text>
+
+  <line x1="580" y1="745" x2="650" y2="745" stroke="#facc15" stroke-width="1.5" opacity="0.4"/>
+  <polygon points="650,740 660,745 650,750" fill="#facc15" opacity="0.4"/>
+
+  <rect x="660" y="720" width="200" height="50" rx="25" fill="rgba(34,197,94,0.08)" stroke="#22c55e" stroke-width="1"/>
+  <text x="760" y="751" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">Oracle Stores</text>
+
+  <line x1="860" y1="745" x2="930" y2="745" stroke="#22c55e" stroke-width="1.5" opacity="0.4"/>
+  <polygon points="930,740 940,745 930,750" fill="#22c55e" opacity="0.4"/>
+
+  <rect x="940" y="720" width="240" height="50" rx="25" fill="rgba(34,197,94,0.08)" stroke="#22c55e" stroke-width="1"/>
+  <text x="1060" y="751" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">TrustWallet Enforces</text>
+
+  <line x1="1180" y1="745" x2="1250" y2="745" stroke="#22c55e" stroke-width="1.5" opacity="0.4"/>
+  <polygon points="1250,740 1260,745 1250,750" fill="#22c55e" opacity="0.4"/>
+
+  <rect x="1260" y="720" width="220" height="50" rx="25" fill="rgba(232,38,26,0.1)" stroke="#e8261a" stroke-width="1"/>
+  <text x="1370" y="751" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">x402 Monetizes</text>
+
+  <!-- Every action verifiable -->
+  <text x="960" y="840" text-anchor="middle" fill="#666" font-size="16">Every action = a verifiable transaction on Nile TronScan</text>
+</svg>

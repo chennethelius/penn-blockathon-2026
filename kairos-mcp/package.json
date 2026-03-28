@@ -1,6 +1,6 @@
 {
   "name": "kairos-xyz-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server for Kairos — trust infrastructure for AI agents on Tron",
   "main": "index.js",
   "bin": {
@@ -9,6 +9,7 @@
   "keywords": ["mcp", "tron", "trust", "ai-agents", "kairos"],
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0"
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.23.0"
   }
 }

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="system-ui, -apple-system, sans-serif">
+  <rect width="1920" height="1080" fill="#06000a"/>
+  <rect x="0" y="0" width="1920" height="3" fill="#e8261a" opacity="0.6"/>
+
+  <text x="100" y="80" fill="#e8261a" font-size="28" font-weight="900" letter-spacing="4">KAIROS</text>
+
+  <text x="100" y="220" fill="#fff" font-size="64" font-weight="900" letter-spacing="-2">Security Model</text>
+  <text x="100" y="280" fill="#888" font-size="24">Three layers of enforcement — smart contract, ML, and protocol</text>
+
+  <!-- Layer 1 -->
+  <rect x="100" y="340" width="540" height="280" rx="10" fill="rgba(232,38,26,0.04)" stroke="rgba(232,38,26,0.2)" stroke-width="1.5"/>
+  <text x="140" y="385" fill="#e8261a" font-size="14" font-weight="800" letter-spacing="2">LAYER 1</text>
+  <text x="140" y="420" fill="#fff" font-size="26" font-weight="800">Smart Contract Gating</text>
+  <text x="140" y="460" fill="#aaa" font-size="16" font-weight="400">TrustWallet queries Oracle before</text>
+  <text x="140" y="485" fill="#aaa" font-size="16" font-weight="400">every outgoing transfer.</text>
+  <text x="140" y="525" fill="#aaa" font-size="16" font-weight="400">Score below threshold?</text>
+  <text x="140" y="555" fill="#f87171" font-size="20" font-weight="800">Transaction reverts at the EVM level.</text>
+  <text x="140" y="595" fill="#666" font-size="13">TrustWallet.sol  ·  TronTrustOracle.sol</text>
+
+  <!-- Layer 2 -->
+  <rect x="680" y="340" width="540" height="280" rx="10" fill="rgba(250,204,21,0.03)" stroke="rgba(250,204,21,0.15)" stroke-width="1.5"/>
+  <text x="720" y="385" fill="#facc15" font-size="14" font-weight="800" letter-spacing="2">LAYER 2</text>
+  <text x="720" y="420" fill="#fff" font-size="26" font-weight="800">ML Risk Detection</text>
+  <text x="720" y="460" fill="#aaa" font-size="16" font-weight="400">Anubis extracts 50 features from</text>
+  <text x="720" y="485" fill="#aaa" font-size="16" font-weight="400">TronGrid and TronScan.</text>
+  <text x="720" y="525" fill="#aaa" font-size="16" font-weight="400">Detects:</text>
+  <text x="720" y="555" fill="#facc15" font-size="16" font-weight="600">Wash trading · Honeypots · Phishing</text>
+  <text x="720" y="580" fill="#facc15" font-size="16" font-weight="600">Energy drain · Circular payments</text>
+  <text x="720" y="600" fill="#666" font-size="13">XGBoost · Monte Carlo confidence bands</text>
+
+  <!-- Layer 3 -->
+  <rect x="1260" y="340" width="540" height="280" rx="10" fill="rgba(34,197,94,0.03)" stroke="rgba(34,197,94,0.15)" stroke-width="1.5"/>
+  <text x="1300" y="385" fill="#22c55e" font-size="14" font-weight="800" letter-spacing="2">LAYER 3</text>
+  <text x="1300" y="420" fill="#fff" font-size="26" font-weight="800">Protocol Enforcement</text>
+  <text x="1300" y="460" fill="#aaa" font-size="16" font-weight="400">Tron Account Permission</text>
+  <text x="1300" y="485" fill="#aaa" font-size="16" font-weight="400">Management locks agent wallets.</text>
+  <text x="1300" y="525" fill="#aaa" font-size="16" font-weight="400">Locked agents can ONLY transact</text>
+  <text x="1300" y="550" fill="#aaa" font-size="16" font-weight="400">through the TrustWallet contract.</text>
+  <text x="1300" y="590" fill="#22c55e" font-size="18" font-weight="800">Even compromised AI cannot bypass.</text>
+  <text x="1300" y="600" fill="#666" font-size="13">Tron native multi-sig · Not a smart contract rule</text>
+
+  <!-- Bottom -->
+  <text x="960" y="720" text-anchor="middle" fill="#fff" font-size="22" font-weight="700">Contract checks score → ML flags threats → Protocol locks wallets</text>
+  <text x="960" y="760" text-anchor="middle" fill="#666" font-size="16">Defense in depth. Each layer works independently.</text>
+</svg>
